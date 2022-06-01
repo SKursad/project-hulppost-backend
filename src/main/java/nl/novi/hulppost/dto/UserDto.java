@@ -1,6 +1,11 @@
 package nl.novi.hulppost.dto;
 
 import lombok.*;
+import nl.novi.hulppost.util.UniqueEmail;
+import nl.novi.hulppost.util.UniqueUsername;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
 
 @Builder
 @NoArgsConstructor
@@ -11,8 +16,16 @@ public class UserDto {
 
     private Long id;
     private Long accountId;
-    private String username;
-    private String email;
-    private String password;
 
+    @UniqueUsername
+    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.username.Pattern.message}")
+    private String username;
+
+    @Email(message = "{project.constraint.Email.message}")
+    @UniqueEmail
+    private String email;
+
+    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.username.Pattern.message}")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
+    private String password;
 }
