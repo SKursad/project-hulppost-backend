@@ -4,6 +4,7 @@ import lombok.*;
 import nl.novi.hulppost.util.UniqueEmail;
 import nl.novi.hulppost.util.UniqueUsername;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 
 @Builder
@@ -22,6 +23,7 @@ public class UserDto {
     private String username;
 
     @UniqueEmail
+    @Email(message = "{project.constraint.Email.message}")
     private String email;
 
     @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.username.Pattern.message}")
