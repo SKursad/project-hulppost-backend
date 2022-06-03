@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("Gebruiker niet gevonden");
         } else {
             User newUser = userRepository.save(user);
+
             return mapToDto(newUser);
         }
     }

@@ -21,9 +21,6 @@ public class RequestServiceImpl implements RequestService {
     @Autowired
     private ModelMapper mapper;
 
-    public RequestServiceImpl() {
-    }
-
     public RequestServiceImpl(RequestRepository requestRepository, ModelMapper mapper) {
         this.requestRepository = requestRepository;
         this.mapper = mapper;
@@ -37,7 +34,7 @@ public class RequestServiceImpl implements RequestService {
 
     public List<RequestDto> getAllRequests() {
         List<Request> requestList = requestRepository.findAll();
-        List<RequestDto> requestDtoList = new ArrayList<>();
+        List<RequestDto> requestDtoList = new ArrayList();
 
         for (Request request : requestList) {
             RequestDto requestDto = mapToDto(request);
@@ -53,11 +50,9 @@ public class RequestServiceImpl implements RequestService {
                         new ResourceNotFoundException("Aanvraag niet gevonden"));
 
         return Optional.of(mapToDto(request));
-
     }
 
     public RequestDto updateRequest(RequestDto requestDto, Long requestId) {
-
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Aanvraag", "id", requestId));
@@ -68,7 +63,6 @@ public class RequestServiceImpl implements RequestService {
         Request updatedRequest = requestRepository.save(request);
 
         return mapToDto(updatedRequest);
-
     }
 
     public void deleteRequest(Long requestId) {
@@ -76,32 +70,11 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private RequestDto mapToDto(Request request) {
-
-//        RequestDto requestDto = new RequestDto();
-//
-//        requestDto.setId(request.getId());
-//        requestDto.setTitle(request.getTitle());
-//        requestDto.setTypeRequest(request.getTypeRequest());
-//        requestDto.setContent(request.getContent());
-//
-//        return requestDto;
         return mapper.map(request, RequestDto.class);
-
     }
 
     private Request mapToEntity(RequestDto requestDto) {
-
-//        Request request = new Request();
-
-//        request.setId(requestDto.getId());
-//        request.setTitle(requestDto.getTitle());
-//        request.setTypeRequest(requestDto.getTypeRequest());
-//        request.setContent(requestDto.getContent());
-//
-//        return request;
-
         return mapper.map(requestDto, Request.class);
-
     }
 
 }

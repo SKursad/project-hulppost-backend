@@ -28,10 +28,12 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String password;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn(referencedColumnName = "account_Id")
     @JsonIgnore
     private Account account;
+
 
     public User() {
     }

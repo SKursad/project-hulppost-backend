@@ -22,5 +22,10 @@ public class RequestDto {
     private TypeRequest typeRequest;
 
     @NotEmpty
+<<<<<<< HEAD
     private  String content;
+=======
+    private String content;
+
+>>>>>>> origin/main
 }
