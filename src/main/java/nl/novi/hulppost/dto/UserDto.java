@@ -15,15 +15,20 @@ import javax.validation.constraints.Pattern;
 public class UserDto {
 
     private Long id;
+
     private Long accountId;
 
     @UniqueUsername
     @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.username.Pattern.message}")
     private String username;
 
-    @Email(message = "{project.constraint.Email.message}")
     @UniqueEmail
+    @Email(message = "{project.constraint.Email.message}")
     private String email;
+
+    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.username.Pattern.message}")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
+    private String password;
 
     @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.username.Pattern.message}")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
