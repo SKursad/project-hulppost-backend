@@ -67,18 +67,19 @@ public class AccountServiceTest {
         lenient().when(accountRepository.findByFirstNameIgnoreCase(account.getFirstName()))
                 .thenReturn(Optional.empty());
 
-        given((Account) accountRepository.save(account)).willReturn(account);
+        given(accountRepository.save(account)).willReturn(account);
 
         System.out.println(accountRepository);
         System.out.println(underTest);
 
         // when - action that's under test
-        Account newAccount = (Account) accountRepository.save(account);
+        Account newAccount = accountRepository.save(account);
 
         System.out.println(newAccount);
 
         // then - verify output
         assertThat(newAccount).isNotNull();
+
     }
 
     @DisplayName("JUnit test for saveAccount method which throws exception")
@@ -124,6 +125,7 @@ public class AccountServiceTest {
         // then
         assertThat(accountList).isNotNull();
         assertThat(accountList.size()).isEqualTo(2);
+
     }
 
     @DisplayName("JUnit test for getAllAccounts method (negative scenario)")
@@ -147,6 +149,7 @@ public class AccountServiceTest {
         // then
         assertThat(accountList).isEmpty();
         assertThat(accountList.size()).isEqualTo(0);
+
     }
 
     @DisplayName("JUnit test for getAccountById method")
@@ -162,6 +165,7 @@ public class AccountServiceTest {
 
         // then
         assertThat(savedAccount).isNotNull();
+
     }
 
     @DisplayName("JUnit test for updateAccount method")
@@ -181,6 +185,7 @@ public class AccountServiceTest {
         assertThat(updatedAccount.getFirstName()).isEqualTo("Kursad");
         assertThat(updatedAccount.getSurname()).isEqualTo("Dursun");
         assertThat(updatedAccount.getBirthday()).isEqualTo("24-02-85");
+
     }
 
     @DisplayName("JUnit test for deleteAccount method")
@@ -196,6 +201,8 @@ public class AccountServiceTest {
 
         // then
         verify(accountRepository, times(1)).deleteById(accountId);
+
     }
+
 }
 

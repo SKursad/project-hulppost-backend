@@ -16,4 +16,5 @@ public interface AccountService {
     AccountDto updateAccount(AccountDto accountDto, Long accountId);
 
     void deleteAccount(Long accountId);
+
 }
