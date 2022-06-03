@@ -10,8 +10,8 @@ import javax.validation.constraints.Pattern;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
+@Getter
 public class UserDto {
 
     private Long id;
@@ -25,10 +25,6 @@ public class UserDto {
     @UniqueEmail
     @Email(message = "{project.constraint.Email.message}")
     private String email;
-
-    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.username.Pattern.message}")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
-    private String password;
 
     @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.username.Pattern.message}")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
