@@ -17,6 +17,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     @GetMapping()
     public ResponseEntity<List<UserDto>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
@@ -50,5 +54,4 @@ public class UserController {
         userService.deleteUser(userId);
         return new ResponseEntity<>("Gebruiker succesvol verwijderd ", HttpStatus.OK);
     }
-
 }

@@ -33,7 +33,6 @@ public class User {
     @JsonIgnore
     private Account account;
 
-
     public User() {
     }
 

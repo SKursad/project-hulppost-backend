@@ -17,6 +17,10 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
+
     @GetMapping
     public ResponseEntity<List<AccountDto>> getAllAccounts() {
         return new ResponseEntity<>(accountService.getAllAccounts(), HttpStatus.OK);
@@ -50,5 +54,4 @@ public class AccountController {
         this.accountService.deleteAccount(accountId);
         return new ResponseEntity<>("Profiel succesvol verwijderd ", HttpStatus.OK);
     }
-
 }
