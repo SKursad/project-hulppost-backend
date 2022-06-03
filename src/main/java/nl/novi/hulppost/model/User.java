@@ -4,7 +4,7 @@
  *
  * Copyright (c) Novi University, Edu.
  *
- * This is an Entity Class of a User
+ * This is an Entity Class of User
  */
 
 package nl.novi.hulppost.model;

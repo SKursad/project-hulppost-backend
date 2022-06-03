@@ -8,8 +8,8 @@ import javax.validation.constraints.Pattern;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
+@Getter
 public class AccountDto {
 
     private Long id;
@@ -23,6 +23,7 @@ public class AccountDto {
     //    @Pattern(regexp = "^M$|^V$")
     private Gender gender;
 
+    //    @JsonFormat(pattern = "dd-MM-yyyy")
     @Pattern(regexp = "^(3[01]|[12]\\d|0?[1-9])/(1[0-2]|0?[1-9])/(?:\\d{2})?\\d{2}$", message = "{project.constraint.dob.Pattern.message}")
     private String birthday;
 
