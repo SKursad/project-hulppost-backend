@@ -191,8 +191,9 @@ class UserServiceTest {
         // given
         Long userId = 1L;
 //        user = User.builder()
-//        .id(1L).username("kur")
-//        .email("hahaha")
+//        .id(1L)
+//        .username("kur")
+//        .email("Kur@gmail.com")
 //        .password("Test12345")
 //        .build();
 

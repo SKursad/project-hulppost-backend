@@ -19,12 +19,12 @@ public class Reply {
     private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="account_Id", nullable=false)
+    @JoinColumn(name="account_Id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="request_id", nullable=false)
+    @JoinColumn(name="request_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Request request;

@@ -36,11 +36,6 @@ public class UserControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setup() {
-        userRepository.deleteAll();
-    }
-
     @Test
     public void givenUserObject_whenCreateUser_thenReturnSavedUser() throws Exception {
 
@@ -215,7 +210,6 @@ public class UserControllerITest {
         response.andExpect(status().isOk())
                 .andDo(print());
     }
-
 }
 
 

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.novi.hulppost.dto.UserDto;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.UserRepository;
+import nl.novi.hulppost.service.AccountService;
+import nl.novi.hulppost.service.ReplyService;
+import nl.novi.hulppost.service.RequestService;
 import nl.novi.hulppost.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +41,20 @@ class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
+    @MockBean
+    private UserRepository userRepository;
 
     @MockBean
-    public UserRepository userRepository;
+    private AccountService accountService;
+
+    @MockBean
+    private RequestService requestService;
+
+    @MockBean
+    private ReplyService replyService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
 
     @Test
