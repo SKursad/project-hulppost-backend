@@ -29,16 +29,13 @@ public class RequestControllerITest {
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private RequestRepository requestRepository;
+
     @Autowired
     private ObjectMapper objectMapper;
 
-
-    @BeforeEach
-    void setup() {
-        requestRepository.deleteAll();
-    }
 
     @Test
     public void givenRequestObject_whenCreateRequest_thenReturnSavedRequest() throws Exception {
@@ -230,6 +227,5 @@ public class RequestControllerITest {
         // then
         response.andExpect(status().isOk()).andDo(print());
     }
-
 }
 

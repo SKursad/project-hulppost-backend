@@ -17,7 +17,8 @@ public class ReplyController {
     @Autowired
     private ReplyService replyService;
 
-    public ReplyController() {
+    public ReplyController(ReplyService replyService) {
+        this.replyService = replyService;
     }
 
     @PostMapping

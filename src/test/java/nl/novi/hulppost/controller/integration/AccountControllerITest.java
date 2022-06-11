@@ -28,16 +28,13 @@ public class AccountControllerITest {
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private AccountRepository accountRepository;
+
     @Autowired
     private ObjectMapper objectMapper;
 
-
-    @BeforeEach
-    void setup() {
-        accountRepository.deleteAll();
-    }
 
     @Test
     public void givenAccountObject_whenCreateAccount_thenReturnSavedAccount() throws Exception {

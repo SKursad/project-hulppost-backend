@@ -9,6 +9,7 @@ import nl.novi.hulppost.model.enums.TypeRequest;
 import nl.novi.hulppost.repository.RequestRepository;
 import nl.novi.hulppost.repository.UserRepository;
 import nl.novi.hulppost.service.AccountService;
+import nl.novi.hulppost.service.ReplyService;
 import nl.novi.hulppost.service.RequestService;
 import nl.novi.hulppost.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -38,21 +39,22 @@ public class RequestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private ObjectMapper objectMapper;
+
     @MockBean
     private RequestService requestService;
+
+    @MockBean
+    private ReplyService replyService;
+
     @MockBean
     private UserService userService;
+
     @MockBean
     private AccountService accountService;
-    @MockBean
-    public RequestRepository requestRepository;
-    @MockBean
-    public UserRepository userRepository;
 
-    public RequestControllerTest() {
-    }
 
     @Test
     public void givenRequestObject_whenCreateRequest_thenReturnSavedRequest() throws Exception {
@@ -96,7 +98,7 @@ public class RequestControllerTest {
     }
 
     @Test
-    public void givenListOfUsers_whenGetAllUsers_thenReturnUsersList() throws Exception {
+    public void givenListOfRequests_whenGetAllRequests_thenReturnRequestsList() throws Exception {
 
         // given
         List<RequestDto> listOfRequests = new ArrayList();
@@ -255,6 +257,5 @@ public class RequestControllerTest {
         response.andExpect(status().isOk())
                 .andDo(print());
     }
-
 }
 

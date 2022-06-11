@@ -6,6 +6,8 @@ import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.enums.Gender;
 import nl.novi.hulppost.repository.AccountRepository;
 import nl.novi.hulppost.service.AccountService;
+import nl.novi.hulppost.service.ReplyService;
+import nl.novi.hulppost.service.RequestService;
 import nl.novi.hulppost.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,12 @@ public class AccountControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private ReplyService replyService;
+
+    @MockBean
+    private RequestService requestService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -289,6 +297,5 @@ public class AccountControllerTest {
         response.andExpect(status().isOk())
                 .andDo(print());
     }
-
 }
 

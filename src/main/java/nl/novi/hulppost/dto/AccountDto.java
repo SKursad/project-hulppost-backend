@@ -19,7 +19,6 @@ public class AccountDto {
     private String firstName;
 
     private String surname;
-
     //    @Pattern(regexp = "^M$|^V$")
     private Gender gender;
 
