@@ -80,26 +80,6 @@ public class ReplyServiceTest {
         assertThat(newReply).isNotNull();
     }
 
-    // JUnit test for saveReply method
-//    @DisplayName("JUnit test for saveReply method which throws exception")
-//    @Test
-//    public void givenExistingEmail_whenSaveReply_thenThrowsException() {
-//        // given
-//        when(replyRepository.findById(reply.getId()))
-//                .thenReturn(Optional.of(reply));
-//
-//        System.out.println(replyRepository);
-//        System.out.println(underTest);
-//
-//        // when
-//        assertThrows(ResourceNotFoundException.class, () -> {
-//            underTest.saveReply(replyDto);
-//        });
-//
-//        // then
-//        verify(replyRepository, never()).save(any(Reply.class));
-//    }
-
     // JUnit test for getAllReplies method
     @DisplayName("JUnit test for getAllReplies method")
     @Test
