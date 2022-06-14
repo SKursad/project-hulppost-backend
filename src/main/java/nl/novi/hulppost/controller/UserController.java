@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/hulppost/gebruikers")
+@RequestMapping("/hulppost/users")
 public class UserController {
 
     @Autowired
@@ -33,10 +33,6 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<UserDto> saveUser(@Valid @RequestBody UserDto userDto) {
-        return new ResponseEntity<>(userService.saveUser(userDto), HttpStatus.CREATED);
-    }
 
     @PutMapping("/{userId}")
     public ResponseEntity<UserDto> updateUser(@PathVariable(value = "userId") Long userId,

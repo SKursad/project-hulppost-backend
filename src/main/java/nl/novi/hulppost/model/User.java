@@ -1,9 +1,9 @@
 /**
  * @Author - S.K. Dursun
  * @Version - 0.1 / 27-04-2022
- *
+ * <p>
  * Copyright (c) Novi University, Edu.
- *
+ * <p>
  * This is an Entity Class of User
  */
 
@@ -13,10 +13,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Builder
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"username"}),
+        @UniqueConstraint(columnNames = {"email"})
+})
 public class User {
 
     @Id
@@ -31,19 +35,26 @@ public class User {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn(referencedColumnName = "account_Id")
-    @JsonIgnore
+//    @JsonIgnore
     private Account account;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    private Set<Role> roles;
 
 
     public User() {
     }
 
-    public User(Long id, String username, String email, String password, Account account) {
+    public User(Long id, String username, String email, String password, Account account, Set<Role> roles) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.account = account;
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -84,5 +95,13 @@ public class User {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

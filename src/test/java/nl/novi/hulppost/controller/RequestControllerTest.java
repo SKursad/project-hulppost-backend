@@ -8,15 +8,22 @@ import nl.novi.hulppost.model.enums.Gender;
 import nl.novi.hulppost.model.enums.TypeRequest;
 import nl.novi.hulppost.repository.RequestRepository;
 import nl.novi.hulppost.repository.UserRepository;
+import nl.novi.hulppost.security.CustomUserDetailsService;
+import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
+import nl.novi.hulppost.security.JwtAuthenticationFilter;
+import nl.novi.hulppost.security.JwtTokenProvider;
 import nl.novi.hulppost.service.AccountService;
 import nl.novi.hulppost.service.ReplyService;
 import nl.novi.hulppost.service.RequestService;
 import nl.novi.hulppost.service.UserService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -35,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
+@AutoConfigureMockMvc(addFilters = false)
 public class RequestControllerTest {
 
     @Autowired
@@ -54,6 +62,21 @@ public class RequestControllerTest {
 
     @MockBean
     private AccountService accountService;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
+
+    @MockBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
 
     @Test
@@ -82,7 +105,7 @@ public class RequestControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/hulpverzoeken")
+        ResultActions response = mockMvc.perform(post("/hulppost/requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
@@ -116,7 +139,7 @@ public class RequestControllerTest {
         given(requestService.getAllRequests()).willReturn(listOfRequests);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/hulpverzoeken"));
+        ResultActions response = mockMvc.perform(get("/hulppost/requests"));
 
         // then
         response.andExpect(status().isOk())
@@ -138,7 +161,7 @@ public class RequestControllerTest {
         given(requestService.getRequestById(requestId)).willReturn(Optional.of(requestDto));
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/hulpverzoeken/{requestId}", requestId));
+        ResultActions response = mockMvc.perform(get("/hulppost/requests/{requestId}", requestId));
 
         // then
         response.andDo(print())
@@ -166,7 +189,7 @@ public class RequestControllerTest {
         given(requestService.getRequestById(requestId)).willReturn(Optional.empty());
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/hulpverzoeken/{requestId}", requestId));
+        ResultActions response = mockMvc.perform(get("/hulppost/requests/{requestId}", requestId));
 
         // then
         response.andExpect(status().isNotFound())
@@ -199,7 +222,7 @@ public class RequestControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/hulpverzoeken/{requestId}", requestId).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedRequest)));
+        ResultActions response = mockMvc.perform(put("/hulppost/requests/{requestId}", requestId).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedRequest)));
 
         // then
         response.andDo(print())
@@ -234,7 +257,7 @@ public class RequestControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/hulpverzoeken/{requestId}", requestId)
+        ResultActions response = mockMvc.perform(put("/hulppost/requests/{requestId}", requestId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedRequest)));
 
@@ -251,7 +274,7 @@ public class RequestControllerTest {
         willDoNothing().given(requestService).deleteRequest(requestId);
 
         // when
-        ResultActions response = mockMvc.perform(delete("/hulppost/hulpverzoeken/{requestId}", requestId));
+        ResultActions response = mockMvc.perform(delete("/hulppost/requests/{requestId}", requestId));
 
         // then
         response.andExpect(status().isOk())

@@ -26,12 +26,14 @@ public class RequestServiceImpl implements RequestService {
         this.mapper = mapper;
     }
 
+    @Override
     public RequestDto saveRequest(RequestDto requestDto) {
         Request request = mapToEntity(requestDto);
         Request newRequest = requestRepository.save(request);
         return mapToDto(newRequest);
     }
 
+    @Override
     public List<RequestDto> getAllRequests() {
         List<Request> requestList = requestRepository.findAll();
         List<RequestDto> requestDtoList = new ArrayList();
@@ -44,6 +46,7 @@ public class RequestServiceImpl implements RequestService {
         return requestDtoList;
     }
 
+    @Override
     public Optional<RequestDto> getRequestById(Long requestId) {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() ->
@@ -52,6 +55,7 @@ public class RequestServiceImpl implements RequestService {
         return Optional.of(mapToDto(request));
     }
 
+    @Override
     public RequestDto updateRequest(RequestDto requestDto, Long requestId) {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() ->
@@ -65,6 +69,7 @@ public class RequestServiceImpl implements RequestService {
         return mapToDto(updatedRequest);
     }
 
+    @Override
     public void deleteRequest(Long requestId) {
         requestRepository.deleteById(requestId);
     }

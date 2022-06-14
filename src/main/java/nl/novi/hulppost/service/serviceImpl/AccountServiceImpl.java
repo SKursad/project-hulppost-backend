@@ -1,10 +1,13 @@
 package nl.novi.hulppost.service.serviceImpl;
 
 import nl.novi.hulppost.dto.AccountDto;
+import nl.novi.hulppost.dto.RequestDto;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
 import nl.novi.hulppost.model.Account;
+import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.AccountRepository;
 import nl.novi.hulppost.service.AccountService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,25 +21,30 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private ModelMapper mapper;
+
     public AccountServiceImpl() {
     }
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, ModelMapper mapper) {
         this.accountRepository = accountRepository;
+        this.mapper = mapper;
     }
 
+    @Override
     public AccountDto saveAccount(AccountDto accountDto) {
         Account account = mapToEntity(accountDto);
         Optional<Account> savedAccount = accountRepository.findByFirstNameIgnoreCase(accountDto.getFirstName());
-        if (savedAccount.isPresent()) {
-            throw new ResourceNotFoundException("Profiel bestaat al");
-        } else {
-            Account newAccount = (Account)accountRepository.save(account);
-            return mapToDto(newAccount);
-        }
+        if (savedAccount.isPresent())
+            throw new ResourceNotFoundException("Het profiel bestaat al");
+        Account newAccount = accountRepository.save(account);
+        return mapToDto(newAccount);
     }
 
+
+    @Override
     public List<AccountDto> getAllAccounts() {
         List<Account> accountList = accountRepository.findAll();
         List<AccountDto> accountDtoList = new ArrayList();
@@ -50,16 +58,18 @@ public class AccountServiceImpl implements AccountService {
         return accountDtoList;
     }
 
+    @Override
     public Optional<AccountDto> getAccountById(Long accountId) {
-        Account account = (Account)accountRepository.findById(accountId)
+        Account account = accountRepository.findById(accountId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Profiel niet gevonden"));
 
         return Optional.of(mapToDto(account));
     }
 
+    @Override
     public AccountDto updateAccount(AccountDto accountDto, Long accountId) {
-        Account account = (Account)accountRepository.findById(accountId)
+        Account account = accountRepository.findById(accountId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Account", "id", accountId));
 
@@ -69,10 +79,11 @@ public class AccountServiceImpl implements AccountService {
         account.setZipCode(accountDto.getZipCode());
         account.setTelNumber(accountDto.getTelNumber());
         account.setGender(accountDto.getGender());
-        Account updatedAccount = (Account)accountRepository.save(account);
+        Account updatedAccount = accountRepository.save(account);
         return mapToDto(updatedAccount);
     }
 
+    @Override
     public void deleteAccount(Long accountId) {
         accountRepository.deleteById(accountId);
     }
@@ -90,6 +101,7 @@ public class AccountServiceImpl implements AccountService {
         accountDto.setGender(account.getGender());
 
         return accountDto;
+//        return mapper.map(account, AccountDto.class);
     }
 
     private Account mapToEntity(AccountDto accountDto) {
@@ -102,9 +114,11 @@ public class AccountServiceImpl implements AccountService {
         account.setBirthday(accountDto.getBirthday());
         account.setZipCode(accountDto.getZipCode());
         account.setTelNumber(accountDto.getTelNumber());
-        account.setGender(accountDto.getGender());
+        account.setGender(accountDto.getGender());;
 
         return account;
+
+//        return mapper.map(accountDto, Account.class);
     }
 }
 

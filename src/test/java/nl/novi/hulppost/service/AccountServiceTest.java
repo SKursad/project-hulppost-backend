@@ -27,13 +27,13 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
+
     @Mock
     private AccountRepository accountRepository;
     @InjectMocks
     private AccountServiceImpl underTest;
     private AccountDto accountDto;
     private Account account;
-
 
     @BeforeEach
     public void setup() {

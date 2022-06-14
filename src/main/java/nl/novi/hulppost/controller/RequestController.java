@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping({"/hulppost/hulpverzoeken"})
+@RequestMapping({"/hulppost/requests"})
 public class RequestController {
 
     @Autowired

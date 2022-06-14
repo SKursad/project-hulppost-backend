@@ -10,15 +10,22 @@ import nl.novi.hulppost.model.enums.Gender;
 import nl.novi.hulppost.model.enums.TypeRequest;
 import nl.novi.hulppost.repository.RequestRepository;
 import nl.novi.hulppost.repository.UserRepository;
+import nl.novi.hulppost.security.CustomUserDetailsService;
+import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
+import nl.novi.hulppost.security.JwtAuthenticationFilter;
+import nl.novi.hulppost.security.JwtTokenProvider;
 import nl.novi.hulppost.service.AccountService;
 import nl.novi.hulppost.service.ReplyService;
 import nl.novi.hulppost.service.RequestService;
 import nl.novi.hulppost.service.UserService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -38,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
+@AutoConfigureMockMvc(addFilters = false)
 class ReplyControllerTest {
 
     @Autowired
@@ -58,6 +66,21 @@ class ReplyControllerTest {
     @MockBean
     private AccountService accountService;
 
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
+
+    @MockBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
 
     @Test
     public void givenReplyObject_whenCreateReply_thenReturnSavedReply() throws Exception {
@@ -68,13 +91,13 @@ class ReplyControllerTest {
                 .id(1L)
                 .accountId(1L)
                 .requestId(1L)
-                .text("Hallo, dit is een reactie op een aanvraag")
+                .text("Hallo, dit is een reactie op een hulpverzoek")
                 .build();
         given(replyService.saveReply(any(ReplyDto.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/reacties")
+        ResultActions response = mockMvc.perform(post("/hulppost/replies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(replyDto)));
 
@@ -101,7 +124,7 @@ class ReplyControllerTest {
         given(replyService.getAllReplies()).willReturn(listOfReplies);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/reacties"));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies"));
 
         // then
         response.andExpect(status().isOk())
@@ -124,7 +147,7 @@ class ReplyControllerTest {
         given(replyService.getReplyById(replyId)).willReturn(Optional.of(replyDto));
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/reacties/{replyId}", replyId));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies/{replyId}", replyId));
 
         // then
         response.andDo(print())
@@ -145,7 +168,7 @@ class ReplyControllerTest {
         given(replyService.getReplyById(replyId)).willReturn(Optional.empty());
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/reacties/{replyId}", replyId));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies/{replyId}", replyId));
 
         // then
         response.andExpect(status().isNotFound())
@@ -171,7 +194,7 @@ class ReplyControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/reacties/{replyId}", replyId).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedReply)));
+        ResultActions response = mockMvc.perform(put("/hulppost/replies/{replyId}", replyId).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedReply)));
 
         // then
         response.andDo(print())
@@ -198,7 +221,7 @@ class ReplyControllerTest {
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/reacties/{replyId}", replyId)
+        ResultActions response = mockMvc.perform(put("/hulppost/replies/{replyId}", replyId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedReply)));
 
@@ -215,7 +238,7 @@ class ReplyControllerTest {
         willDoNothing().given(replyService).deleteReply(replyId);
 
         // when
-        ResultActions response = mockMvc.perform(delete("/hulppost/hulpverzoeken/{replyId}", replyId));
+        ResultActions response = mockMvc.perform(delete("/hulppost/replies/{replyId}", replyId));
 
         // then
         response.andExpect(status().isOk())

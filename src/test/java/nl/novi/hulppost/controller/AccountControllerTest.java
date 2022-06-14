@@ -5,15 +5,22 @@ import nl.novi.hulppost.dto.AccountDto;
 import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.enums.Gender;
 import nl.novi.hulppost.repository.AccountRepository;
+import nl.novi.hulppost.security.CustomUserDetailsService;
+import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
+import nl.novi.hulppost.security.JwtAuthenticationFilter;
+import nl.novi.hulppost.security.JwtTokenProvider;
 import nl.novi.hulppost.service.AccountService;
 import nl.novi.hulppost.service.ReplyService;
 import nl.novi.hulppost.service.RequestService;
 import nl.novi.hulppost.service.UserService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -32,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
+@AutoConfigureMockMvc(addFilters = false)
 public class AccountControllerTest {
 
     @Autowired
@@ -49,6 +57,21 @@ public class AccountControllerTest {
     @MockBean
     private RequestService requestService;
 
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
+
+    @MockBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -64,9 +87,9 @@ public class AccountControllerTest {
                 .id(1L)
                 .firstName("Test")
                 .surname("Person")
-                .birthday("22/02/02")
-                .gender(Gender.M).
-                telNumber("06123456789")
+                .birthday("22/02/2002")
+                .gender(Gender.M)
+                .telNumber("06123456789")
                 .zipCode("1455AZ")
                 .build();
 
@@ -177,7 +200,7 @@ public class AccountControllerTest {
                 .id(1L)
                 .firstName("Anna")
                 .surname("Gouda")
-                .birthday("22/07/02")
+                .birthday("22/07/2002")
                 .gender(Gender.V)
                 .telNumber("0635790135")
                 .zipCode("1445MM")
@@ -200,7 +223,7 @@ public class AccountControllerTest {
         AccountDto savedAccount = AccountDto.builder()
                 .firstName("Test")
                 .surname("Person")
-                .birthday("18/04/2002")
+                .birthday("18/04/1997")
                 .gender(Gender.M)
                 .telNumber("06123456789")
                 .zipCode("1455AZ")
@@ -210,7 +233,7 @@ public class AccountControllerTest {
                 .id(1L)
                 .firstName("Joop")
                 .surname("Peterson")
-                .birthday("18/04/2002")
+                .birthday("18/04/1984")
                 .gender(Gender.M)
                 .telNumber("06123456789")
                 .zipCode("1455AZ")
@@ -252,7 +275,7 @@ public class AccountControllerTest {
                 .userId(1L)
                 .firstName("Test")
                 .surname("Person")
-                .birthday("22/07/2002")
+                .birthday("22/07/1999")
                 .gender(Gender.V)
                 .telNumber("06123456789")
                 .zipCode("1455AZ")
@@ -263,7 +286,7 @@ public class AccountControllerTest {
                 .userId(1L)
                 .firstName("Test")
                 .surname("Person")
-                .birthday("22/07/2002")
+                .birthday("22/07/1999")
                 .gender(Gender.V)
                 .telNumber("06123456789")
                 .zipCode("1455AZ")

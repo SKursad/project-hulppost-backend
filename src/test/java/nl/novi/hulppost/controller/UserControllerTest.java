@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.novi.hulppost.dto.UserDto;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.UserRepository;
+import nl.novi.hulppost.security.CustomUserDetailsService;
+import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
+import nl.novi.hulppost.security.JwtAuthenticationFilter;
+import nl.novi.hulppost.security.JwtTokenProvider;
 import nl.novi.hulppost.service.AccountService;
 import nl.novi.hulppost.service.ReplyService;
 import nl.novi.hulppost.service.RequestService;
@@ -14,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -53,6 +58,21 @@ class UserControllerTest {
     @MockBean
     private ReplyService replyService;
 
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
+
+    @MockBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @MockBean
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -63,15 +83,15 @@ class UserControllerTest {
         // given - precondition or setup
         User user = User.builder()
                 .id(1L)
-                .username("Test")
-                .email("Person")
-                .password("test@person.com")
+                .username("DummyAdmin")
+                .email("Admin@mail.com")
+                .password("Test1234")
                 .build();
-        given(userService.saveUser(any(UserDto.class)))
+        given(userService.registerAdmin(any(UserDto.class)))
                 .willAnswer((invocation)-> invocation.getArgument(0));
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/gebruikers")
+        ResultActions response = mockMvc.perform(post("/auth/registration/admin")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(user)));
 
@@ -92,12 +112,20 @@ class UserControllerTest {
     public void givenListOfUsers_whenGetAllUsers_thenReturnUsersList() throws Exception{
         // given
         List<UserDto> listOfUsers = new ArrayList<>();
-        listOfUsers.add(UserDto.builder().username("Kursad").email("Kurshda85@gmail.com").password("Test1234A").build());
-        listOfUsers.add(UserDto.builder().username("Test").email("Test@gmail.com").password("1234ATest").build());
+        listOfUsers.add(UserDto.builder()
+                .username("Kursad")
+                .email("Kurshda85@gmail.com")
+                .password("Test1234A")
+                .build());
+        listOfUsers.add(UserDto.builder()
+                .username("Test")
+                .email("Test@gmail.com")
+                .password("1234ATest")
+                .build());
         given(userService.getAllUsers()).willReturn(listOfUsers);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/gebruikers"));
+        ResultActions response = mockMvc.perform(get("/hulppost/users"));
 
         // then
         response.andExpect(status().isOk())
@@ -122,7 +150,7 @@ class UserControllerTest {
         given(userService.getUserById(userId)).willReturn(Optional.of(userDto));
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/gebruikers/{userId}", userId));
+        ResultActions response = mockMvc.perform(get("/hulppost/users/{userId}", userId));
 
         // then
         response.andExpect(status().isOk())
@@ -148,7 +176,7 @@ class UserControllerTest {
         given(userService.getUserById(userId)).willReturn(Optional.empty());
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/gebruikers/{userId}", userId));
+        ResultActions response = mockMvc.perform(get("/hulppost/users/{userId}", userId));
 
         // then
         response.andExpect(status().isNotFound())
@@ -165,22 +193,19 @@ class UserControllerTest {
         UserDto savedUser = UserDto.builder()
                 .username("Kursad")
                 .email("Kurshad85@gmail.com")
-                .password("Test1234A")
                 .build();
 
         UserDto updatedUser = UserDto.builder()
                 .id(1L)
                 .username("Salim")
                 .email("Kurshad@live.nl")
-                .password("Test1234B")
                 .build();
         given(userService.getUserById(userId)).willReturn(Optional.of(savedUser));
-//        given(userService.updateUser(any(UserDto.class)))
         given(userService.updateUser(any(UserDto.class), anyLong()))
                 .willAnswer((invocation)-> invocation.getArgument(0));
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/gebruikers/{userId}", userId)
+        ResultActions response = mockMvc.perform(put("/hulppost/users/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedUser)));
 
@@ -189,8 +214,7 @@ class UserControllerTest {
         response.andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username", is(updatedUser.getUsername())))
-                .andExpect(jsonPath("$.email", is(updatedUser.getEmail())))
-                .andExpect(jsonPath("$.password", is(updatedUser.getPassword())));
+                .andExpect(jsonPath("$.email", is(updatedUser.getEmail())));
     }
 
     @Test
@@ -198,23 +222,21 @@ class UserControllerTest {
 
         // given
         Long userId = 1L;
-        UserDto savedUser = UserDto.builder()
+        User savedUser = User.builder()
                 .username("Kursad")
                 .email("Kurshad85@gmail.com")
-                .password("Test1234A")
                 .build();
 
-        UserDto updatedUser = UserDto.builder()
+        User updatedUser = User.builder()
                 .username("Salim")
                 .email("Kurshad@live.nl")
-                .password("Test1234B")
                 .build();
         given(userService.getUserById(userId)).willReturn(Optional.empty());
         given(userService.updateUser(any(UserDto.class), anyLong()))
                 .willAnswer((invocation)-> invocation.getArgument(0));
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/gebruikers/{userId}", userId)
+        ResultActions response = mockMvc.perform(put("/hulppost/users/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedUser)));
 
@@ -231,7 +253,7 @@ class UserControllerTest {
         willDoNothing().given(userService).deleteUser(userId);
 
         // when
-        ResultActions response = mockMvc.perform(delete("/hulppost/gebruikers/{userId}", userId));
+        ResultActions response = mockMvc.perform(delete("/hulppost/users/{userId}", userId));
 
         // then
         response.andExpect(status().isOk())

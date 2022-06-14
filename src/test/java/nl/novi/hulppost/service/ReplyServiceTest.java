@@ -174,5 +174,4 @@ public class ReplyServiceTest {
         // then
         verify(replyRepository, times(1)).deleteById(replyId);
     }
-
 }

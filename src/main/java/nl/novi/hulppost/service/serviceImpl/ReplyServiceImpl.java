@@ -29,12 +29,14 @@ public class ReplyServiceImpl implements ReplyService {
         this.mapper = mapper;
     }
 
+    @Override
     public ReplyDto saveReply(ReplyDto replyDto) {
         Reply reply = mapToEntity(replyDto);
         Reply newReply = replyRepository.save(reply);
         return mapToDto(newReply);
     }
 
+    @Override
     public List<ReplyDto> getAllReplies() {
         List<Reply> replyList = replyRepository.findAll();
         List<ReplyDto> replyDtoList = new ArrayList<>();
@@ -47,6 +49,7 @@ public class ReplyServiceImpl implements ReplyService {
         return replyDtoList;
     }
 
+    @Override
     public Optional<ReplyDto> getReplyById(Long replyId) {
         Reply reply = replyRepository.findById(replyId)
                 .orElseThrow(() ->
@@ -55,18 +58,19 @@ public class ReplyServiceImpl implements ReplyService {
         return Optional.of(mapToDto(reply));
     }
 
+    @Override
     public ReplyDto updateReply(ReplyDto replyDto, Long replyId) {
         Reply reply = replyRepository.findById(replyId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Aanvraag", "id", replyId));
 
         reply.setText(replyDto.getText());
-
         Reply updatedReply = replyRepository.save(reply);
 
         return mapToDto(updatedReply);
     }
 
+    @Override
     public void deleteReply(Long replyId) {
         replyRepository.deleteById(replyId);
     }

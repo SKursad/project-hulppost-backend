@@ -1,10 +1,7 @@
 package nl.novi.hulppost.controller.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.Reply;
-import nl.novi.hulppost.model.Request;
-import nl.novi.hulppost.model.enums.TypeRequest;
 import nl.novi.hulppost.repository.ReplyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,19 +35,22 @@ public class ReplyControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @BeforeEach
+    void setup(){
+        replyRepository.deleteAll();
+    }
 
     @Test
     public void givenReplyObject_whenCreateReply_thenReturnSavedReply() throws Exception {
 
         // given - precondition or setup
-
         Reply reply = Reply.builder()
                 .id(1L)
                 .text("Hallo, dit is een reactie op een aanvraag")
                 .build();
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/reacties")
+        ResultActions response = mockMvc.perform(post("/hulppost/replies").with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(reply)));
 
@@ -76,7 +77,7 @@ public class ReplyControllerITest {
         replyRepository.saveAll(listOfReplies);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/reacties"));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies"));
 
         // then
         response.andExpect(status().isOk())
@@ -95,7 +96,7 @@ public class ReplyControllerITest {
         replyRepository.save(reply);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/reacties/{replyId}", reply.getId()));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies/{replyId}", reply.getId()));
 
         // then
         response.andDo(print())
@@ -116,7 +117,7 @@ public class ReplyControllerITest {
         replyRepository.save(reply);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/reacties/{replyId}", replyId));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies/{replyId}", replyId));
 
         // then
         response.andExpect(status().isNotFound())
@@ -138,7 +139,7 @@ public class ReplyControllerITest {
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/reacties/{replyId}", savedReply.getId())
+        ResultActions response = mockMvc.perform(put("/hulppost/replies/{replyId}", savedReply.getId()).with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedReply)));
 
@@ -164,7 +165,7 @@ public class ReplyControllerITest {
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/reacties/{replyId}", replyId)
+        ResultActions response = mockMvc.perform(put("/hulppost/replies/{replyId}", replyId).with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedReply)));
 
@@ -183,7 +184,7 @@ public class ReplyControllerITest {
         replyRepository.save(savedReply);
 
         // when
-        ResultActions response = mockMvc.perform(delete("/hulppost/reacties/{replyId}", savedReply.getId()));
+        ResultActions response = mockMvc.perform(delete("/hulppost/replies/{replyId}", savedReply.getId()).with(user("Test")));
 
         // then
         response.andExpect(status().isOk()).andDo(print());

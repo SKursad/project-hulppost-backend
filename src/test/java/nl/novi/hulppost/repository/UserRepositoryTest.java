@@ -189,7 +189,7 @@ public class UserRepositoryTest {
         underTest.save(user);
 
         // when
-        User UserDB = underTest.findByEmail(user.getEmail()).get();
+        User UserDB = underTest.findByEmail(user.getEmail());
 
         // then
         assertThat(UserDB).isNotNull();

@@ -12,6 +12,8 @@ package nl.novi.hulppost.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import nl.novi.hulppost.model.enums.Gender;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -22,7 +24,7 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true, nullable = false)
+//    @Column(unique = true, nullable = false)
     private Long id;
     @Column( name = "first_name")
     private String firstName;
@@ -36,8 +38,10 @@ public class Account {
     private String zipCode;
     @Column(name = "tel_number")
     private String telNumber;
-    @OneToOne( fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "account")
-    @JsonIgnore
+    @OneToOne( fetch = FetchType.LAZY, cascade = CascadeType.ALL ,mappedBy = "account")
+    @PrimaryKeyJoinColumn(referencedColumnName = "user_id")
+    @JoinColumn( name = "account_Id")
+//    @JsonIgnore
     private User user;
 
     public Account() {

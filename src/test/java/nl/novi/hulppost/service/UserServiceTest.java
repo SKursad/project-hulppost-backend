@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +20,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
@@ -30,6 +30,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserServiceImpl underTest;
@@ -43,19 +46,20 @@ class UserServiceTest {
     public void setup() {
 //        userRepository = Mockito.mock(UserRepository.class);
 //        underTest = new UserServiceImpl(userRepository);
+//        passwordEncoder = new BCryptPasswordEncoder();
 
         user = User.builder()
                 .id(1L)
                 .username("Kurshad")
                 .email("Kurshad85@gmail.com")
-                .password("Test1234A")
+                .password(passwordEncoder.encode("Test1234"))
                 .build();
 
         userDto = UserDto.builder()
                 .id(1L)
                 .username("Kurshad")
                 .email("Kurshad85@gmail.com")
-                .password("Test1234A")
+                .password(passwordEncoder.encode("Test1234"))
                 .build();
 
     }
@@ -66,7 +70,7 @@ class UserServiceTest {
     public void givenUserObject_whenSaveUser_thenReturnUserObject() {
 
         // given - precondition or setup
-        lenient().when(userRepository.findByEmail(user.getEmail()))
+        lenient().when(userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail()))
                 .thenReturn(Optional.empty());
 
         given(userRepository.save(user)).willReturn(user);
@@ -83,24 +87,26 @@ class UserServiceTest {
         assertThat(newUser).isNotNull();
     }
 
-    // JUnit test for saveUser method
-    @DisplayName("JUnit test for saveUser method which throws exception")
+
+    @DisplayName("JUnit test for update method which throws exception")
     @Test
-    public void givenExistingEmail_whenSaveUser_thenThrowsException() {
+    public void givenNotExistingEmail_whenUpdateUser_thenThrowsException() {
+
         // given
-        when(userRepository.findByEmail(user.getEmail()))
-                .thenReturn(Optional.of(user));
+        lenient().when(userRepository.findByEmail(user.getEmail()))
+                .thenReturn(user);
+
 
         System.out.println(userRepository);
         System.out.println(underTest);
 
         // when
         assertThrows(ResourceNotFoundException.class, () -> {
-            underTest.saveUser(userDto);
+            underTest.findUserByEmail(user.getEmail());
         });
 
         // then
-        verify(userRepository, never()).save(any(User.class));
+        verify(userRepository, never()).save( any(User.class));
     }
 
     // JUnit test for getAllUsers method
@@ -113,7 +119,7 @@ class UserServiceTest {
                 .id(2L)
                 .username("TestPerson")
                 .email("test@gmail.com")
-                .password("Test1234B")
+                .password(passwordEncoder.encode("Test1234"))
                 .build();
 
         given(userRepository.findAll()).willReturn(List.of(user, user1));
@@ -154,7 +160,8 @@ class UserServiceTest {
     public void givenUserId_whenGetUserById_thenReturnUserObject() {
 
         // given
-        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(userRepository.findById(1L))
+                .willReturn(Optional.of(user));
 
         // when
         UserDto savedUser = underTest.getUserById(user.getId()).get();
@@ -173,7 +180,6 @@ class UserServiceTest {
         given(userRepository.save(user)).willReturn(user);
         user.setEmail("Kur@gmail.com");
         user.setUsername("Kur");
-        user.setPassword("Testing123");
 
         // when
         UserDto updatedUser = underTest.updateUser(userDto, user.getId());

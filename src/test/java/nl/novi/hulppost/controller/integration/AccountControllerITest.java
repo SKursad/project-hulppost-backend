@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.enums.Gender;
 import nl.novi.hulppost.repository.AccountRepository;
+import nl.novi.hulppost.repository.RoleRepository;
+import nl.novi.hulppost.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,24 +36,35 @@ public class AccountControllerITest {
     private AccountRepository accountRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
+    @BeforeEach
+    void setup(){
+        accountRepository.deleteAll();
+    }
 
     @Test
     public void givenAccountObject_whenCreateAccount_thenReturnSavedAccount() throws Exception {
 
         // given - precondition or setup
         Account account = Account.builder()
-                .id(1L)
+                .id(20L)
                 .firstName("DummyPerson")
                 .surname("Tester")
                 .gender(Gender.M)
                 .zipCode("1000AA")
+                .telNumber("061234567890")
                 .birthday("22/04/1999")
                 .build();
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/accounts")
+        ResultActions response = mockMvc.perform(post("/hulppost/accounts").with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(account)));
 
@@ -75,12 +89,14 @@ public class AccountControllerITest {
         // given
         List<Account> listOfAccounts = new ArrayList();
         listOfAccounts.add(Account.builder()
+                .id(10L)
                 .firstName("Kursad")
                 .surname("Dursun")
                 .zipCode("1234AA")
                 .build());
 
         listOfAccounts.add(Account.builder()
+                .id(11L)
                 .firstName("DummyPerson")
                 .surname("Tester")
                 .zipCode("1454AA")
@@ -135,7 +151,7 @@ public class AccountControllerITest {
     public void givenInvalidAccountId_whenGetAccountById_thenReturnEmpty() throws Exception {
 
         // given
-        Long accountId = 3L;
+        Long accountId = 19L;
         Account account = Account.builder()
                 .firstName("Salim")
                 .surname("Dursun")
@@ -162,24 +178,24 @@ public class AccountControllerITest {
                 .firstName("Kursad")
                 .surname("Dursun")
                 .gender(Gender.M)
-                .birthday("24/2/1985")
+                .birthday("24/02/1985")
                 .zipCode("1000AA")
                 .telNumber("061234567890")
                 .build();
         accountRepository.save(savedAccount);
 
         Account updatedAccount = Account.builder()
-                .id(1L)
+                .id(28L)
                 .firstName("Salim")
                 .surname("Dursun")
                 .gender(Gender.M)
-                .birthday("24/2/1985")
+                .birthday("24/02/1985")
                 .zipCode("1060AA")
                 .telNumber("060987654321")
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/accounts/{accountId}", savedAccount.getId())
+        ResultActions response = mockMvc.perform(put("/hulppost/accounts/{accountId}", savedAccount.getId()).with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedAccount)));
         // then
@@ -203,7 +219,7 @@ public class AccountControllerITest {
     public void givenUpdatedAccount_whenUpdateAccount_thenReturn404() throws Exception {
 
         // given
-        Long accountId = 2L;
+        Long accountId = 29L;
         Account savedAccount = Account.builder()
                 .firstName("Joo")
                 .surname("Peterson")
@@ -215,7 +231,6 @@ public class AccountControllerITest {
         accountRepository.save(savedAccount);
 
         Account updatedAccount = Account.builder()
-                .id(8L)
                 .firstName("Joop")
                 .surname("Pieterson")
                 .gender(Gender.M)
@@ -225,7 +240,7 @@ public class AccountControllerITest {
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/accounts/{accountId}", accountId)
+        ResultActions response = mockMvc.perform(put("/hulppost/accounts/{accountId}", accountId).with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedAccount)));
 
         // then
@@ -248,7 +263,7 @@ public class AccountControllerITest {
         accountRepository.save(savedAccount);
 
         // when
-        ResultActions response = mockMvc.perform(delete("/hulppost/accounts/{accountId}", savedAccount.getId()));
+        ResultActions response = mockMvc.perform(delete("/hulppost/accounts/{accountId}", savedAccount.getId()).with(user("Test")));
 
         // then
         response.andExpect(status().isOk())

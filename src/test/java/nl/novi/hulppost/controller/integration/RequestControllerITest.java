@@ -12,12 +12,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,6 +40,10 @@ public class RequestControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @BeforeEach
+    void setup(){
+        requestRepository.deleteAll();
+    }
 
     @Test
     public void givenRequestObject_whenCreateRequest_thenReturnSavedRequest() throws Exception {
@@ -50,7 +58,7 @@ public class RequestControllerITest {
                         " bij de voedselbank in Hoofddorp.")
                 .build();
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/hulpverzoeken")
+        ResultActions response = mockMvc.perform(post("/hulppost/requests").with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
@@ -84,7 +92,7 @@ public class RequestControllerITest {
         requestRepository.saveAll(listOfRequests);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/hulpverzoeken"));
+        ResultActions response = mockMvc.perform(get("/hulppost/requests"));
 
         // then
         response.andExpect(status().isOk())
@@ -106,7 +114,7 @@ public class RequestControllerITest {
         requestRepository.save(request);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/hulpverzoeken/{requestId}", request.getId()));
+        ResultActions response = mockMvc.perform(get("/hulppost/requests/{requestId}", request.getId()));
 
         // then
         response.andExpect(status().isOk())
@@ -134,7 +142,7 @@ public class RequestControllerITest {
         requestRepository.save(request);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/hulpverzoeken/{requestId}", requestId));
+        ResultActions response = mockMvc.perform(get("/hulppost/requests/{requestId}", requestId));
 
         // then
         response.andExpect(status().isNotFound())
@@ -162,7 +170,7 @@ public class RequestControllerITest {
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/hulpverzoeken/{requestId}", savedRequest.getId())
+        ResultActions response = mockMvc.perform(put("/hulppost/requests/{requestId}", savedRequest.getId()).with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedRequest)));
 
@@ -181,7 +189,7 @@ public class RequestControllerITest {
     public void givenUpdatedRequest_whenUpdateRequest_thenReturn404() throws Exception {
 
         // given
-        Long requestId = 1L;
+        Long requestId = 10L;
         Request savedRequest = Request.builder()
                 .title("Maaltijden rondbrengen")
                 .typeRequest(TypeRequest.Praktisch)
@@ -191,16 +199,15 @@ public class RequestControllerITest {
         requestRepository.save(savedRequest);
 
         Request updatedRequest = Request.builder()
-                .id(17L)
                 .title("Maaltijden rondbrengen bij ouderen in Slotermeer")
                 .typeRequest(TypeRequest.Praktisch)
-                .content("Zorgcentrum HulpOrganisatie in Nieuw-Vennep is op zoek naar enkele enthousiaste vrijwilligers, " +
+                .content("Zorgcentrum HulpOrganisatie in Slotermeer is op zoek naar enkele enthousiaste vrijwilligers, " +
                         "die maaltijden bij ouderen in de wijk willen bezorgen." + "\n" +
                         "Dit doe je met je eigen auto, de gereden kilometers kunnen worden gedeclareerd.")
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/hulpverzoeken/{requestId}", requestId)
+        ResultActions response = mockMvc.perform(put("/hulppost/requests/{requestId}", requestId).with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedRequest)));
 
@@ -222,7 +229,7 @@ public class RequestControllerITest {
         requestRepository.save(savedRequest);
 
         // when
-        ResultActions response = mockMvc.perform(delete("/hulppost/hulpverzoeken/{requestId}", savedRequest.getId()));
+        ResultActions response = mockMvc.perform(delete("/hulppost/requests/{requestId}", savedRequest.getId()).with(user("Test")));
 
         // then
         response.andExpect(status().isOk()).andDo(print());
