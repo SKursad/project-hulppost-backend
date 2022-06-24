@@ -17,6 +17,7 @@ public class RequestController {
     @Autowired
     private RequestService requestService;
 
+
     public RequestController(RequestService requestService) {
         this.requestService = requestService;
     }
@@ -24,20 +25,17 @@ public class RequestController {
     @PostMapping
     public ResponseEntity<RequestDto> saveRequest(@RequestBody @Valid RequestDto requestDto) {
         return new ResponseEntity<>(requestService.saveRequest(requestDto), HttpStatus.CREATED);
-
     }
 
     @GetMapping
     public ResponseEntity<List<RequestDto>> getAllRequests() {
         return new ResponseEntity<>(requestService.getAllRequests(), HttpStatus.OK);
-
     }
 
     @GetMapping({"/{requestId}"})
     public ResponseEntity<RequestDto> getRequestById(@PathVariable("requestId") Long requestId) {
         return requestService.getRequestById(requestId).map(ResponseEntity::ok).orElseGet(() ->
             ResponseEntity.notFound().build());
-
     }
 
     @PutMapping("/{requestId}")
@@ -49,7 +47,6 @@ public class RequestController {
                     return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
-
     }
 
     @DeleteMapping({"/{requestId}"})
@@ -58,4 +55,5 @@ public class RequestController {
 
         return new ResponseEntity<>("Aanvraag succesvol verwijderd ", HttpStatus.OK);
     }
+
 }

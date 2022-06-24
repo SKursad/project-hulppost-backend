@@ -26,4 +26,6 @@ public class APIException extends RuntimeException {
     public String getMessage() {
         return message;
     }
+
 }
+

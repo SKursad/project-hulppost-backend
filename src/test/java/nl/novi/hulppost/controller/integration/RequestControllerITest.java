@@ -5,12 +5,15 @@ import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.Request;
 import nl.novi.hulppost.model.enums.TypeRequest;
 import nl.novi.hulppost.repository.RequestRepository;
+import nl.novi.hulppost.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
@@ -38,6 +41,9 @@ public class RequestControllerITest {
     private RequestRepository requestRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
@@ -46,6 +52,7 @@ public class RequestControllerITest {
     }
 
     @Test
+    @WithMockUser (roles = "HELP-SEEKER")
     public void givenRequestObject_whenCreateRequest_thenReturnSavedRequest() throws Exception {
 
         // given - precondition or setup
@@ -58,7 +65,7 @@ public class RequestControllerITest {
                         " bij de voedselbank in Hoofddorp.")
                 .build();
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/requests").with(user("Test"))
+        ResultActions response = mockMvc.perform(post("/hulppost/requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
@@ -75,6 +82,7 @@ public class RequestControllerITest {
     }
 
     @Test
+    @WithMockUser (roles = "HELP-SEEKER")
     public void givenListOfRequests_whenGetAllRequests_thenReturnRequestsList() throws Exception {
 
         // given
@@ -102,6 +110,7 @@ public class RequestControllerITest {
     }
 
     @Test
+    @WithMockUser (roles = "HELP-SEEKER")
     public void givenRequestId_whenGetRequestById_thenReturnRequestObject() throws Exception {
 
         // given
@@ -129,6 +138,7 @@ public class RequestControllerITest {
     }
 
     @Test
+    @WithMockUser (roles = "HELP-SEEKER")
     public void givenInvalidRequestId_whenGetRequestById_thenReturnEmpty() throws Exception {
 
         // given
@@ -150,6 +160,7 @@ public class RequestControllerITest {
     }
 
     @Test
+    @WithMockUser (roles = "HELP-SEEKER")
     public void givenUpdatedRequest_whenUpdateRequest_thenReturnUpdateRequestObject() throws Exception {
 
         // given
@@ -186,6 +197,7 @@ public class RequestControllerITest {
     }
 
     @Test
+    @WithMockUser (roles = "HELP-SEEKER")
     public void givenUpdatedRequest_whenUpdateRequest_thenReturn404() throws Exception {
 
         // given
@@ -207,7 +219,7 @@ public class RequestControllerITest {
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/requests/{requestId}", requestId).with(user("Test"))
+        ResultActions response = mockMvc.perform(put("/hulppost/requests/{requestId}", requestId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedRequest)));
 
@@ -218,6 +230,7 @@ public class RequestControllerITest {
     }
 
     @Test
+    @WithMockUser (roles = "ADMIN")
     public void givenRequestId_whenDeleteRequest_thenReturn200() throws Exception {
 
         // given
@@ -229,7 +242,7 @@ public class RequestControllerITest {
         requestRepository.save(savedRequest);
 
         // when
-        ResultActions response = mockMvc.perform(delete("/hulppost/requests/{requestId}", savedRequest.getId()).with(user("Test")));
+        ResultActions response = mockMvc.perform(delete("/hulppost/requests/{requestId}", savedRequest.getId()));
 
         // then
         response.andExpect(status().isOk()).andDo(print());

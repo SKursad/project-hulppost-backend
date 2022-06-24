@@ -18,7 +18,7 @@ public class ReplyDto {
     private Long requestId;
 
     @NotEmpty
-    @NotNull(message = "veld mag niet onbeschreven zijn")
-    @NotBlank(message = "veld mag niet leeg zijn")
+    @NotNull(message = "Het veld mag niet onbeschreven zijn")
+    @NotBlank(message = "Het veld mag niet leeg zijn")
     private String text;
 }

@@ -1,5 +1,6 @@
 package nl.novi.hulppost.controller;
 
+import nl.novi.hulppost.dto.GetUsersDto;
 import nl.novi.hulppost.dto.UserDto;
 import nl.novi.hulppost.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class UserController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<UserDto>> getAllUsers() {
+    public ResponseEntity<List<GetUsersDto>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
@@ -50,4 +51,5 @@ public class UserController {
         userService.deleteUser(userId);
         return new ResponseEntity<>("Gebruiker succesvol verwijderd ", HttpStatus.OK);
     }
+
 }

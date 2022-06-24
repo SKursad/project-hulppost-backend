@@ -14,10 +14,7 @@ import nl.novi.hulppost.security.CustomUserDetailsService;
 import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
 import nl.novi.hulppost.security.JwtAuthenticationFilter;
 import nl.novi.hulppost.security.JwtTokenProvider;
-import nl.novi.hulppost.service.AccountService;
-import nl.novi.hulppost.service.ReplyService;
-import nl.novi.hulppost.service.RequestService;
-import nl.novi.hulppost.service.UserService;
+import nl.novi.hulppost.service.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +62,9 @@ class ReplyControllerTest {
 
     @MockBean
     private AccountService accountService;
+
+    @MockBean
+    private AttachmentService attachmentService;
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;

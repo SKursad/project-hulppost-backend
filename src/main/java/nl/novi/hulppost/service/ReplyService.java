@@ -16,4 +16,5 @@ public interface ReplyService {
     ReplyDto updateReply(ReplyDto replyDto, Long replyId);
 
     void deleteReply(Long replyId);
+
 }

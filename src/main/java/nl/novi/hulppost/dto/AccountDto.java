@@ -18,12 +18,12 @@ public class AccountDto {
 
     private Long userId;
 
-    @NotNull(message = "veld mag niet onbeschreven zijn")
-    @NotBlank(message = "veld mag niet leeg zijn")
+    @NotNull(message = "Het veld mag niet onbeschreven zijn")
+    @NotBlank(message = "Het veld mag niet leeg zijn")
     private String firstName;
 
-    @NotNull(message = "veld mag niet onbeschreven zijn")
-    @NotBlank(message = "veld mag niet leeg zijn")
+    @NotNull(message = "Het veld mag niet onbeschreven zijn")
+    @NotBlank(message = "Het veld mag niet leeg zijn")
     private String surname;
     //    @Pattern(regexp = "^M$|^V$")
     private Gender gender;

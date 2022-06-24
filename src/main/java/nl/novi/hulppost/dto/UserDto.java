@@ -1,8 +1,15 @@
 package nl.novi.hulppost.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.*;
 import nl.novi.hulppost.util.UniqueEmail;
 import nl.novi.hulppost.util.UniqueUsername;
+import org.hibernate.boot.model.source.internal.hbm.InLineViewSourceImpl;
+import org.springframework.web.servlet.View;
 
 import javax.validation.constraints.*;
 
@@ -17,8 +24,8 @@ public class UserDto {
 
     private Long accountId;
 
-    @NotNull(message = "veld mag niet onbeschreven zijn")
-    @NotBlank(message = "veld mag niet leeg zijn")
+    @NotNull(message = "Het veld mag niet onbeschreven zijn")
+    @NotBlank(message = "Het veld mag niet leeg zijn")
     @UniqueUsername
     @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.emptySpace.Pattern.message}")
     private String username;
@@ -29,5 +36,6 @@ public class UserDto {
 
     @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.emptySpace.Pattern.message}")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
+//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 }

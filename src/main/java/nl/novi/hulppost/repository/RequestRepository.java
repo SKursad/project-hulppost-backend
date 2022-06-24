@@ -10,4 +10,5 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     boolean existsByTitle (String title);
 
     Optional<Request> findById (Long requestId);
+
 }

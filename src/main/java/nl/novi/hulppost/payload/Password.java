@@ -1,16 +1,17 @@
-package nl.novi.hulppost.model;
+package nl.novi.hulppost.payload;
 
 import lombok.Builder;
+
+import javax.validation.constraints.Pattern;
 
 @Builder
 public class Password {
 
         private String email;
         private String oldPassword;
+        @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.emptySpace.Pattern.message}")
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
         private String newPassword;
-
-        public Password() {
-        }
 
         public Password(String email, String oldPassword, String newPassword) {
                 this.email = email;
@@ -41,4 +42,5 @@ public class Password {
         public void setNewPassword(String newPassword) {
                 this.newPassword = newPassword;
         }
+
 }

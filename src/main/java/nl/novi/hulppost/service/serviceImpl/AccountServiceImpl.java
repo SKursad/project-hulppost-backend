@@ -1,10 +1,8 @@
 package nl.novi.hulppost.service.serviceImpl;
 
 import nl.novi.hulppost.dto.AccountDto;
-import nl.novi.hulppost.dto.RequestDto;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
 import nl.novi.hulppost.model.Account;
-import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.AccountRepository;
 import nl.novi.hulppost.service.AccountService;
 import org.modelmapper.ModelMapper;
@@ -18,20 +16,13 @@ import java.util.Optional;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    private ModelMapper mapper;
-
-    public AccountServiceImpl() {
-    }
-
-    @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository, ModelMapper mapper) {
+    public AccountServiceImpl(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
-        this.mapper = mapper;
     }
+
 
     @Override
     public AccountDto saveAccount(AccountDto accountDto) {
@@ -80,6 +71,7 @@ public class AccountServiceImpl implements AccountService {
         account.setTelNumber(accountDto.getTelNumber());
         account.setGender(accountDto.getGender());
         Account updatedAccount = accountRepository.save(account);
+
         return mapToDto(updatedAccount);
     }
 
@@ -120,5 +112,6 @@ public class AccountServiceImpl implements AccountService {
 
 //        return mapper.map(accountDto, Account.class);
     }
+
 }
 

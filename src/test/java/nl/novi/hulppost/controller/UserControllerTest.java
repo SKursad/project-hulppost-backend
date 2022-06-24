@@ -1,6 +1,7 @@
 package nl.novi.hulppost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nl.novi.hulppost.dto.GetUsersDto;
 import nl.novi.hulppost.dto.UserDto;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.UserRepository;
@@ -8,10 +9,7 @@ import nl.novi.hulppost.security.CustomUserDetailsService;
 import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
 import nl.novi.hulppost.security.JwtAuthenticationFilter;
 import nl.novi.hulppost.security.JwtTokenProvider;
-import nl.novi.hulppost.service.AccountService;
-import nl.novi.hulppost.service.ReplyService;
-import nl.novi.hulppost.service.RequestService;
-import nl.novi.hulppost.service.UserService;
+import nl.novi.hulppost.service.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -57,6 +55,9 @@ class UserControllerTest {
 
     @MockBean
     private ReplyService replyService;
+
+    @MockBean
+    private AttachmentService attachmentService;
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
@@ -111,16 +112,14 @@ class UserControllerTest {
     @Test
     public void givenListOfUsers_whenGetAllUsers_thenReturnUsersList() throws Exception{
         // given
-        List<UserDto> listOfUsers = new ArrayList<>();
-        listOfUsers.add(UserDto.builder()
+        List<GetUsersDto> listOfUsers = new ArrayList<>();
+        listOfUsers.add(GetUsersDto.builder()
                 .username("Kursad")
                 .email("Kurshda85@gmail.com")
-                .password("Test1234A")
                 .build());
-        listOfUsers.add(UserDto.builder()
+        listOfUsers.add(GetUsersDto.builder()
                 .username("Test")
                 .email("Test@gmail.com")
-                .password("1234ATest")
                 .build());
         given(userService.getAllUsers()).willReturn(listOfUsers);
 

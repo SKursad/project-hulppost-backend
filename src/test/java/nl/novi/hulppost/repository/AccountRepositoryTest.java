@@ -36,6 +36,11 @@ public class AccountRepositoryTest {
                 .build();
     }
 
+    @BeforeEach
+    void init(){
+        underTest.deleteAll();
+    }
+
     @DisplayName("JUnit test finding the name with ignore case")
     @Test
     void itShouldFindTheUserByNameWithIgnoreCase() {

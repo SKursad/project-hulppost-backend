@@ -54,4 +54,5 @@ public class AccountController {
         this.accountService.deleteAccount(accountId);
         return new ResponseEntity<>("Profiel succesvol verwijderd ", HttpStatus.OK);
     }
+
 }

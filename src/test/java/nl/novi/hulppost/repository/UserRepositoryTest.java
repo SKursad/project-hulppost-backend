@@ -32,6 +32,11 @@ public class UserRepositoryTest {
                 .build();
     }
 
+    @BeforeEach
+    void init(){
+        underTest.deleteAll();
+    }
+
     @DisplayName("JUnit test checks if user exists by Email")
     @Test
     void itShouldCheckIfUserExistsByUsername() {

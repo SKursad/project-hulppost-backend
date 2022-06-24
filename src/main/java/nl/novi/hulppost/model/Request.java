@@ -31,15 +31,19 @@ public class Request {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Account account;
 
+    @OneToOne(mappedBy="request", orphanRemoval = true)
+    private Attachment attachment;
+
     public Request() {
     }
 
-    public Request(Long id, String title, TypeRequest typeRequest, String content, Account account) {
+    public Request(Long id, String title, TypeRequest typeRequest, String content, Account account, Attachment attachment) {
         this.id = id;
         this.title = title;
         this.typeRequest = typeRequest;
         this.content = content;
         this.account = account;
+        this.attachment = attachment;
     }
 
     public Long getId() {
@@ -81,4 +85,13 @@ public class Request {
     public void setAccount(Account account) {
         this.account = account;
     }
+
+    public Attachment getAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(Attachment attachment) {
+        this.attachment = attachment;
+    }
+
 }

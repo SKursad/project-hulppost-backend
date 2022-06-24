@@ -2,7 +2,9 @@ package nl.novi.hulppost.service.serviceImpl;
 
 import nl.novi.hulppost.dto.RequestDto;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
+import nl.novi.hulppost.model.Attachment;
 import nl.novi.hulppost.model.Request;
+import nl.novi.hulppost.repository.AttachmentRepository;
 import nl.novi.hulppost.repository.RequestRepository;
 import nl.novi.hulppost.service.RequestService;
 import org.modelmapper.ModelMapper;
@@ -18,17 +20,35 @@ public class RequestServiceImpl implements RequestService {
 
     @Autowired
     private RequestRepository requestRepository;
+
+    @Autowired
+    private AttachmentRepository attachmentRepository;
+
     @Autowired
     private ModelMapper mapper;
+
+    public RequestServiceImpl() {
+    }
 
     public RequestServiceImpl(RequestRepository requestRepository, ModelMapper mapper) {
         this.requestRepository = requestRepository;
         this.mapper = mapper;
     }
 
+    public RequestServiceImpl(RequestRepository requestRepository, ModelMapper mapper, AttachmentRepository attachment) {
+        this.requestRepository = requestRepository;
+        this.mapper = mapper;
+        this.attachmentRepository = attachment;
+    }
+
     @Override
     public RequestDto saveRequest(RequestDto requestDto) {
         Request request = mapToEntity(requestDto);
+        if (request.getAttachment() != null) {
+            Attachment inDB = attachmentRepository.findById(request.getAttachment().getId()).get();
+            inDB.setRequest(request);
+            request.setAttachment(inDB);
+        }
         Request newRequest = requestRepository.save(request);
         return mapToDto(newRequest);
     }

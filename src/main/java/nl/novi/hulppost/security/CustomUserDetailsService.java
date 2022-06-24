@@ -19,7 +19,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -36,4 +35,5 @@ public class CustomUserDetailsService implements UserDetailsService {
     private Collection< ? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles){
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
+
 }

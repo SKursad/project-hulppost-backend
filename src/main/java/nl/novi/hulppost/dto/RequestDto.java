@@ -19,14 +19,14 @@ public class RequestDto {
     private Long accountId;
 
     @NotEmpty
-    @NotNull(message = "veld mag niet onbeschreven zijn")
-    @NotBlank(message = "veld mag niet leeg zijn")
-    @Size(min = 4, message = "Titel van de bericht moet minimaal 4 tekens bevatten")
+    @NotNull(message = "Het veld mag niet onbeschreven zijn")
+    @NotBlank(message = "Het veld mag niet leeg zijn")
+    @Size(min = 4, message = "De titel van de bericht moet minimaal 4 tekens bevatten")
     private String title;
     private TypeRequest typeRequest;
 
     @NotEmpty
-    @NotNull(message = "veld mag niet onbeschreven zijn")
-    @NotBlank(message = "veld mag niet leeg zijn")
+    @NotNull(message = "Het veld mag niet onbeschreven zijn")
+    @NotBlank(message = "Het veld mag niet leeg zijn")
     private  String content;
 }

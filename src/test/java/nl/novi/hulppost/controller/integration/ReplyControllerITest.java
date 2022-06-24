@@ -2,6 +2,7 @@ package nl.novi.hulppost.controller.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.novi.hulppost.model.Reply;
+import nl.novi.hulppost.model.Role;
 import nl.novi.hulppost.repository.ReplyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -50,7 +52,7 @@ public class ReplyControllerITest {
                 .build();
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/replies").with(user("Test"))
+        ResultActions response = mockMvc.perform(post("/hulppost/replies").with(user("user"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(reply)));
 
@@ -77,7 +79,7 @@ public class ReplyControllerITest {
         replyRepository.saveAll(listOfReplies);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/replies"));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies").with(user("Test")));
 
         // then
         response.andExpect(status().isOk())
@@ -96,7 +98,7 @@ public class ReplyControllerITest {
         replyRepository.save(reply);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/replies/{replyId}", reply.getId()));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies/{replyId}", reply.getId()).with(user("user")));
 
         // then
         response.andDo(print())
@@ -117,7 +119,7 @@ public class ReplyControllerITest {
         replyRepository.save(reply);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/replies/{replyId}", replyId));
+        ResultActions response = mockMvc.perform(get("/hulppost/replies/{replyId}", replyId).with(user("user")));
 
         // then
         response.andExpect(status().isNotFound())

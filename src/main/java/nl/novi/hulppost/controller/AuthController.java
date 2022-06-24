@@ -1,7 +1,7 @@
 package nl.novi.hulppost.controller;
 
 import nl.novi.hulppost.dto.UserDto;
-import nl.novi.hulppost.model.Password;
+import nl.novi.hulppost.payload.Password;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.payload.JWTAuthResponse;
 import nl.novi.hulppost.security.JwtTokenProvider;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/auths")
 public class AuthController {
 
     @Autowired
@@ -63,7 +63,7 @@ public class AuthController {
     }
 
     @PostMapping("/changePassword")
-    public String changePassword(@RequestBody Password password){
+    public String changePassword(@Valid @RequestBody Password password){
         User user = userService.findUserByEmail(password.getEmail());
         if(!userService.checkIfValidOldPassword(user,password.getOldPassword())) {
             return "Wachtwoorden komen niet overeen";
@@ -71,4 +71,5 @@ public class AuthController {
         userService.changePassword(user,password.getNewPassword());
         return "Wachtwoord succesvol gewijzigd";
     }
+
 }

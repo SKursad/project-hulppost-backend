@@ -1,5 +1,6 @@
 package nl.novi.hulppost.service;
 
+import nl.novi.hulppost.dto.GetUsersDto;
 import nl.novi.hulppost.dto.UserDto;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
 import nl.novi.hulppost.model.User;
@@ -125,7 +126,7 @@ class UserServiceTest {
         given(userRepository.findAll()).willReturn(List.of(user, user1));
 
         // when
-        List<UserDto> userList = underTest.getAllUsers();
+        List<GetUsersDto> userList = underTest.getAllUsers();
 
         // then
         assertThat(userList).isNotNull();
@@ -147,7 +148,7 @@ class UserServiceTest {
         given(userRepository.findAll()).willReturn(Collections.emptyList());
 
         // when
-        List<UserDto> userList = underTest.getAllUsers();
+        List<GetUsersDto> userList = underTest.getAllUsers();
 
         // then
         assertThat(userList).isEmpty();

@@ -53,4 +53,5 @@ public class ReplyController {
         this.replyService.deleteReply(replyId);
         return new ResponseEntity<>("Aanvraag succesvol verwijderd ", HttpStatus.OK);
     }
+
 }

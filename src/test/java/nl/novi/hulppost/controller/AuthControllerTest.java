@@ -1,41 +1,32 @@
 package nl.novi.hulppost.controller;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.novi.hulppost.dto.UserDto;
-import nl.novi.hulppost.exception.ResourceNotFoundException;
-import nl.novi.hulppost.model.Account;
-import nl.novi.hulppost.model.Password;
 import nl.novi.hulppost.model.User;
+import nl.novi.hulppost.payload.Password;
 import nl.novi.hulppost.repository.AccountRepository;
 import nl.novi.hulppost.repository.UserRepository;
 import nl.novi.hulppost.security.CustomUserDetailsService;
 import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
 import nl.novi.hulppost.security.JwtAuthenticationFilter;
 import nl.novi.hulppost.security.JwtTokenProvider;
-import nl.novi.hulppost.service.AccountService;
-import nl.novi.hulppost.service.ReplyService;
-import nl.novi.hulppost.service.RequestService;
-import nl.novi.hulppost.service.UserService;
-import org.assertj.core.api.Assert;
+import nl.novi.hulppost.service.*;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import javax.validation.constraints.AssertTrue;
-import java.util.Set;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -62,6 +53,9 @@ class AuthControllerTest {
     private RequestService requestService;
 
     @MockBean
+    private AttachmentService attachmentService;
+
+    @MockBean
     private CustomUserDetailsService customUserDetailsService;
 
     @MockBean
@@ -81,10 +75,6 @@ class AuthControllerTest {
 
     @MockBean
     public UserRepository userRepository;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
 
     @Test
     public void givenHelpSeekerObject_whenCreateHelpSeeker_thenReturnSavedHelpSeeker() throws Exception {
@@ -172,4 +162,35 @@ class AuthControllerTest {
                         is(user.getPassword())));
 
     }
+
+    @Test
+    public void givenOldPassword_ChangesWithNewPassword() throws Exception {
+       // given - precondition or setup
+        User user = User.builder()
+                .username("Kurshad")
+                .email("Kursad85@mail.com")
+                .password("Test1234")
+                .build();
+
+        Password passwordChange = Password.builder()
+                .email("Kursad85@mail.com")
+                .oldPassword("Test1234")
+                .newPassword("123456DDw")
+                .build();
+//        given(userService.checkIfValidOldPassword(user,passwordChange.getOldPassword()))
+//                .willAnswer((invocation) -> invocation.getArgument(0));
+        // when - action that's under test
+        mockMvc.perform(MockMvcRequestBuilders.request(HttpMethod.POST, "/auths/changePassword")
+                        .content(new ObjectMapper().writeValueAsString(passwordChange))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        // then - verify output
+        user.getPassword().equals(passwordChange.getOldPassword());
+        passwordChange.getOldPassword().equals(user.getPassword());
+        user.setPassword(passwordChange.getNewPassword());
+        assertEquals(user.getPassword(), "123456DDw");
+    }
+
 }

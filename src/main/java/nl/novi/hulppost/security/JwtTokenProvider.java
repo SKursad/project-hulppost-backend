@@ -41,21 +41,21 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    // validate JWT token
+    // validate JWT-token
     public boolean validateToken(String token){
         try{
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
             return true;
         }catch (SignatureException ex){
-            throw new APIException(HttpStatus.BAD_REQUEST, "Invalid JWT signature");
+            throw new APIException(HttpStatus.BAD_REQUEST, "Ongeldige JWT signatuur");
         } catch (MalformedJwtException ex) {
-            throw new APIException(HttpStatus.BAD_REQUEST, "Invalid JWT token");
+            throw new APIException(HttpStatus.BAD_REQUEST, "Ongeldig JWT token");
         } catch (ExpiredJwtException ex) {
-            throw new APIException(HttpStatus.BAD_REQUEST, "Expired JWT token");
+            throw new APIException(HttpStatus.BAD_REQUEST, "Verlopen JWT token");
         } catch (UnsupportedJwtException ex) {
-            throw new APIException(HttpStatus.BAD_REQUEST, "Unsupported JWT token");
+            throw new APIException(HttpStatus.BAD_REQUEST, "Niet-ondersteunde JWT token");
         } catch (IllegalArgumentException ex) {
-            throw new APIException(HttpStatus.BAD_REQUEST, "JWT claims string is empty.");
+            throw new APIException(HttpStatus.BAD_REQUEST, "JWT-tekenreeks is leeg.");
         }
     }
 

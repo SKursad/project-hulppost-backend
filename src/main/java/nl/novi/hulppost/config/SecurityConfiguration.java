@@ -56,9 +56,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/hulppost/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/upload/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/download/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/hulppost/requests").permitAll()
+                .antMatchers(HttpMethod.GET, "/hulppost/replies").authenticated()
+                .antMatchers(HttpMethod.GET, "/hulppost/users").authenticated()
+                .antMatchers(HttpMethod.GET, "/hulppost/accounts").authenticated()
                 .antMatchers(HttpMethod.POST, "/hulppost/requests").hasRole("HELP-SEEKER")
-                .antMatchers(HttpMethod.POST, "/hulppost/replies").hasAnyRole()
+                .antMatchers(HttpMethod.POST, "/hulppost/replies").authenticated()
                 .antMatchers(HttpMethod.POST, "/hulppost/users").hasAnyRole()
                 .antMatchers(HttpMethod.POST, "/hulppost/accounts").hasAnyRole()
                 .antMatchers(HttpMethod.PUT, "/hulppost/requests/**").hasRole("HELP-SEEKER")
@@ -81,4 +86,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
     }
+
 }
