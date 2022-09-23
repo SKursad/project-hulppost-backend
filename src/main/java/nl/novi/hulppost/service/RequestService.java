@@ -1,20 +1,22 @@
 package nl.novi.hulppost.service;
 
-import nl.novi.hulppost.dto.RequestDto;
+import nl.novi.hulppost.dto.RequestDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface RequestService {
 
-    RequestDto saveRequest(RequestDto requestDto);
+    RequestDTO saveRequest(RequestDTO requestDto);
 
-    List<RequestDto> getAllRequests();
+    List<RequestDTO> getAllRequests(Optional<Long> userId);
 
-    Optional<RequestDto> getRequestById(Long requestId);
+    Optional<RequestDTO> getRequestById(Long requestId);
 
-    RequestDto updateRequest(RequestDto requestDto, Long requestId);
+    RequestDTO updateRequest(RequestDTO requestDto, Long requestId);
 
     void deleteRequest(Long requestId);
+
+    void assignImageToRequest(Long fileId, Long requestId);
 
 }

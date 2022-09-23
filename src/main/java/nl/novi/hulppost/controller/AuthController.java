@@ -1,6 +1,7 @@
 package nl.novi.hulppost.controller;
 
-import nl.novi.hulppost.dto.UserDto;
+import nl.novi.hulppost.dto.UserDTO;
+import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.payload.Password;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.payload.JWTAuthResponse;
@@ -13,15 +14,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/auths")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
@@ -33,8 +31,9 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider tokenProvider;
 
+//    @CrossOrigin("http://localhost:3000/")
     @PostMapping("/login")
-    public ResponseEntity<JWTAuthResponse> authenticateUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<JWTAuthResponse> authenticateUser(@RequestBody RegistrationDTO userDto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 userDto.getUsername(), userDto.getPassword()));
 
@@ -45,21 +44,26 @@ public class AuthController {
         return ResponseEntity.ok(new JWTAuthResponse(token));
     }
 
+    @GetMapping("/{username}")
+    public ResponseEntity <UserDTO> getUserByUsername(@Valid @PathVariable(value = "username") String username) {
+        return new ResponseEntity<>(userService.getUserByUsername(username), HttpStatus.OK);
+    }
+
     @PostMapping("/registration/helpSeeker")
-    public ResponseEntity<UserDto> registerHelpSeeker(@Valid @RequestBody UserDto userDto) {
-        return new ResponseEntity<>(userService.registerHelpSeeker(userDto), HttpStatus.CREATED);
+    public ResponseEntity<RegistrationDTO> registerHelpSeeker(@Valid @RequestBody RegistrationDTO registrationDTO) {
+        return new ResponseEntity<>(userService.registerHelpSeeker(registrationDTO), HttpStatus.CREATED);
     }
 
 
     @PostMapping("/registration/volunteer")
-    public ResponseEntity<UserDto> registerVolunteer(@Valid @RequestBody UserDto userDto) {
-        return new ResponseEntity<>(userService.registerVolunteer(userDto), HttpStatus.CREATED);
+    public ResponseEntity<RegistrationDTO> registerVolunteer(@Valid @RequestBody RegistrationDTO registrationDTO) {
+        return new ResponseEntity<>(userService.registerVolunteer(registrationDTO), HttpStatus.CREATED);
     }
 
 
     @PostMapping("/registration/admin")
-    public ResponseEntity<UserDto> registerAdmin(@Valid @RequestBody UserDto userDto) {
-        return new ResponseEntity<>(userService.registerAdmin(userDto), HttpStatus.CREATED);
+    public ResponseEntity<RegistrationDTO> registerAdmin(@Valid @RequestBody RegistrationDTO registrationDTO) {
+        return new ResponseEntity<>(userService.registerAdmin(registrationDTO), HttpStatus.CREATED);
     }
 
     @PostMapping("/changePassword")

@@ -1,9 +1,9 @@
 /**
  * @Author - S.K. Dursun
  * @Version - 0.1 / 27-04-2022
- *
+ * <p>
  * Copyright (c) Novi University, Edu.
- *
+ * <p>
  * This is an Entity Class of User
  */
 
@@ -12,8 +12,11 @@ package nl.novi.hulppost.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -34,10 +37,18 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn(referencedColumnName = "account_Id")
+    private String image;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
+    @PrimaryKeyJoinColumn(referencedColumnName = "user_id")
 //    @JsonIgnore
     private Account account;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Request> request;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Reply> reply;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
@@ -48,12 +59,15 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String username, String email, String password, Account account, Set<Role> roles) {
+    public User(Long id, String username, String email, String password, String image, Account account, List<Request> request, List<Reply> reply, Set<Role> roles) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.image = image;
         this.account = account;
+        this.request = request;
+        this.reply = reply;
         this.roles = roles;
     }
 
@@ -89,6 +103,14 @@ public class User {
         this.password = password;
     }
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     public Account getAccount() {
         return account;
     }
@@ -105,4 +127,19 @@ public class User {
         this.roles = roles;
     }
 
+    public List<Request> getRequest() {
+        return request;
+    }
+
+    public void setRequest(List<Request> request) {
+        this.request = request;
+    }
+
+    public List<Reply> getReply() {
+        return reply;
+    }
+
+    public void setReply(List<Reply> reply) {
+        this.reply = reply;
+    }
 }

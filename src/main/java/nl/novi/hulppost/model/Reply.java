@@ -19,9 +19,9 @@ public class Reply {
     private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="account_Id")
+    @JoinColumn(name="user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Account account;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="request_id")
@@ -32,10 +32,10 @@ public class Reply {
     public Reply() {
     }
 
-    public Reply(Long id, String text, Account account, Request request) {
+    public Reply(Long id, String text, User user, Request request) {
         this.id = id;
         this.text = text;
-        this.account = account;
+        this.user = user;
         this.request = request;
     }
 
@@ -55,12 +55,12 @@ public class Reply {
         return text;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Account getAccount() {
-        return account;
+    public User getUser() {
+        return user;
     }
 
     public void setRequest(Request request) {

@@ -1,15 +1,21 @@
 package nl.novi.hulppost.controller.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nl.novi.hulppost.config.AppConfiguration;
+import nl.novi.hulppost.config.WebConfiguration;
 import nl.novi.hulppost.model.Reply;
 import nl.novi.hulppost.model.Role;
+import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.ReplyRepository;
+import nl.novi.hulppost.service.serviceImpl.FileServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -37,12 +43,22 @@ public class ReplyControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    AppConfiguration appConfiguration;
+
+    @MockBean
+    FileServiceImpl fileService;
+
+    @MockBean
+    WebConfiguration webConfiguration;
+
     @BeforeEach
     void setup(){
         replyRepository.deleteAll();
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     public void givenReplyObject_whenCreateReply_thenReturnSavedReply() throws Exception {
 
         // given - precondition or setup
@@ -68,7 +84,7 @@ public class ReplyControllerITest {
     public void givenListOfReplies_whenGetAllReplies_thenReturnRepliesList() throws Exception {
 
         // given
-        List<Reply> listOfReplies = new ArrayList();
+        List<Reply> listOfReplies = new ArrayList<>();
         listOfReplies.add(Reply.builder()
                 .text("Dit is een reactie om te testen")
                 .build());

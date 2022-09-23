@@ -1,16 +1,18 @@
 package nl.novi.hulppost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.novi.hulppost.dto.RequestDto;
+import nl.novi.hulppost.config.AppConfiguration;
+import nl.novi.hulppost.config.WebConfiguration;
+import nl.novi.hulppost.dto.RequestDTO;
 import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.Request;
-import nl.novi.hulppost.model.enums.Gender;
-import nl.novi.hulppost.model.enums.TypeRequest;
+import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.security.CustomUserDetailsService;
 import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
 import nl.novi.hulppost.security.JwtAuthenticationFilter;
 import nl.novi.hulppost.security.JwtTokenProvider;
 import nl.novi.hulppost.service.*;
+import nl.novi.hulppost.service.serviceImpl.FileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +55,7 @@ public class RequestControllerTest {
     private ReplyService replyService;
 
     @MockBean
-    private AttachmentService attachmentService;
+    private FileService attachmentService;
 
     @MockBean
     private UserService userService;
@@ -76,30 +78,38 @@ public class RequestControllerTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @MockBean
+    AppConfiguration appConfiguration;
+
+//    @MockBean
+//    FileServiceImpl fileService;
+
+    @MockBean
+    WebConfiguration webConfiguration;
+
 
     @Test
     public void givenRequestObject_whenCreateRequest_thenReturnSavedRequest() throws Exception {
 
         // given - precondition or setup
         Account account = Account.builder()
-                .id(1L)
+//                .id(1L)
                 .firstName("Test")
                 .surname("Person")
                 .birthday("12/08/02")
-                .gender(Gender.M)
-                .telNumber("06123456789")
+                .gender("M")
                 .zipCode("1455AZ")
                 .build();
 
         Request request = Request.builder()
-                .account(account)
+                .user(new User())
                 .id(1L)
                 .title("Hulp bij uitlaten van mijn huisdier")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Door de operaties aan mijn been kan ik niet meer zo goed lopen." + "\n" +
                         "Ik zoek iemand die bereid is om mijn hond uit te laten")
                 .build();
-        given(requestService.saveRequest((RequestDto) any(RequestDto.class)))
+        given(requestService.saveRequest( any(RequestDTO.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
@@ -113,7 +123,7 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$.title",
                         is(request.getTitle())))
                 .andExpect(jsonPath("$.typeRequest",
-                        is(request.getTypeRequest().toString())))
+                        is(request.getTypeRequest())))
                 .andExpect(jsonPath("$.content",
                         is(request.getContent())));
     }
@@ -122,19 +132,21 @@ public class RequestControllerTest {
     public void givenListOfRequests_whenGetAllRequests_thenReturnRequestsList() throws Exception {
 
         // given
-        List<RequestDto> listOfRequests = new ArrayList();
-        listOfRequests.add(RequestDto.builder()
+        List<RequestDTO> listOfRequests = new ArrayList<>();
+
+        listOfRequests.add(RequestDTO.builder()
                 .title("Opzoek naar hulp bij verhuizen")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Ik ben op zoek naar iemand die mij kan helpen bij het verhuizen")
                 .build());
 
-        listOfRequests.add(RequestDto.builder()
+        listOfRequests.add(RequestDTO.builder()
                 .title("Hulp bij uitlaten van mijn huisdier")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Ik kan niet erg goed lopen door mijn operaties aan mijn been " + "\n" +
                         "Ik zoek iemand die bereid is om mijn hond uit te laten").build());
-        given(requestService.getAllRequests()).willReturn(listOfRequests);
+        given(requestService.getAllRequests(Optional.of(1L))).willReturn(listOfRequests);
+//        given(requestService.getAllRequests(Optional.of(1L))).willReturn(listOfRequests);
 
         // when
         ResultActions response = mockMvc.perform(get("/hulppost/requests"));
@@ -151,9 +163,9 @@ public class RequestControllerTest {
 
         // given
         Long requestId = 1L;
-        RequestDto requestDto = RequestDto.builder()
+        RequestDTO requestDto = RequestDTO.builder()
                 .title("Opzoek naar hulp bij verhuizen")
-                .typeRequest(TypeRequest.Praktisch)
+                .typeRequest("Praktisch")
                 .content("Ik ben op zoek naar iemand die mij kan helpen bij het verhuizen")
                 .build();
         given(requestService.getRequestById(requestId)).willReturn(Optional.of(requestDto));
@@ -167,7 +179,7 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$.title",
                         is(requestDto.getTitle())))
                 .andExpect(jsonPath("$.typeRequest",
-                        is(requestDto.getTypeRequest().toString())))
+                        is(requestDto.getTypeRequest())))
                 .andExpect(jsonPath("$.content",
                         is(requestDto.getContent())));
 
@@ -178,9 +190,9 @@ public class RequestControllerTest {
 
         // given
         Long requestId = 2L;
-        RequestDto requestDto = RequestDto.builder()
+        RequestDTO requestDto = RequestDTO.builder()
                 .title("Vrijwilliger gezocht")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Wj zijn op zoek naar een vrijwilliger die het gebruik " +
                         "van Email wilt leren aan senioren")
                 .build();
@@ -200,27 +212,27 @@ public class RequestControllerTest {
 
         // given
         Long requestId = 1L;
-        RequestDto savedRequest = RequestDto.builder()
+        RequestDTO savedRequest = RequestDTO.builder()
                 .title("Maaltijden rondbrengen")
-                .typeRequest(TypeRequest.Praktisch)
+                .typeRequest("Praktisch")
                 .content("Zorgcentrum HulpOrganisatie is op zoek naar enkele enthousiaste vrijwilligers, " +
                         "die maaltijden bij ouderen in de wijk willen bezorgen.")
                 .build();
 
-        RequestDto updatedRequest = RequestDto.builder()
+        RequestDTO updatedRequest = RequestDTO.builder()
                 .id(2L)
                 .title("Maaltijden rondbrengen bij ouderen in Slotermeer")
-                .typeRequest(TypeRequest.Praktisch)
+                .typeRequest("Praktisch")
                 .content("Zorgcentrum HulpOrganisatie in Slotermeer naar enkele enthousiaste vrijwilligers, " +
                         "die maaltijden bij ouderen in de wijk willen bezorgen." + "\n" +
                         "Dit doe je met je eigen auto, de gereden kilometers kunnen worden gedeclareerd.")
                 .build();
         given(requestService.getRequestById(requestId)).willReturn(Optional.of(savedRequest));
-        given(requestService.updateRequest(any(RequestDto.class), anyLong()))
+        given(requestService.updateRequest(any(RequestDTO.class), anyLong()))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/requests/{requestId}", requestId).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedRequest)));
+        ResultActions response = mockMvc.perform(put("/hulppost/requests/{id}", requestId).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(updatedRequest)));
 
         // then
         response.andDo(print())
@@ -228,7 +240,7 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$.title",
                         is(updatedRequest.getTitle())))
                 .andExpect(jsonPath("$.typeRequest",
-                        is(updatedRequest.getTypeRequest().toString())))
+                        is(updatedRequest.getTypeRequest())))
                 .andExpect(jsonPath("$.content",
                         is(updatedRequest.getContent())));
     }
@@ -238,20 +250,20 @@ public class RequestControllerTest {
 
         // given
         Long requestId = 1L;
-        RequestDto savedRequest = RequestDto.builder()
+        RequestDTO savedRequest = RequestDTO.builder()
                 .title("Vrijwiliger gzcht")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Wj zijn op zoek naar een vrijwilliger die d gebruik van Emal wilt leren aan senioren")
                 .build();
 
-        RequestDto updatedRequest = RequestDto.builder()
+        RequestDTO updatedRequest = RequestDTO.builder()
                 .id(1L)
                 .title("Vrijwilliger gezocht")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Wj zijn op zoek naar een vrijwilliger die het gebruik van Email wilt leren aan senioren")
                 .build();
         given(requestService.getRequestById(requestId)).willReturn(Optional.empty());
-        given(requestService.updateRequest(any(RequestDto.class), anyLong()))
+        given(requestService.updateRequest(any(RequestDTO.class), anyLong()))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when

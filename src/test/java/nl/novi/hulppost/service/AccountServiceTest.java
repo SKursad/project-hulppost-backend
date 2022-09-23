@@ -1,9 +1,8 @@
 package nl.novi.hulppost.service;
 
-import nl.novi.hulppost.dto.AccountDto;
+import nl.novi.hulppost.dto.AccountDTO;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
 import nl.novi.hulppost.model.Account;
-import nl.novi.hulppost.model.enums.Gender;
 import nl.novi.hulppost.repository.AccountRepository;
 import nl.novi.hulppost.service.serviceImpl.AccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +31,7 @@ public class AccountServiceTest {
     private AccountRepository accountRepository;
     @InjectMocks
     private AccountServiceImpl underTest;
-    private AccountDto accountDto;
+    private AccountDTO accountDto;
     private Account account;
 
     @BeforeEach
@@ -44,16 +43,16 @@ public class AccountServiceTest {
                 .id(1L)
                 .firstName("DummyPerson")
                 .surname("Tester")
-                .gender(Gender.M)
+                .gender("M")
                 .zipCode("1000AA")
                 .birthday("22/04/1999")
                 .build();
 
-        accountDto = AccountDto.builder()
+        accountDto = AccountDTO.builder()
                 .id(1L)
                 .firstName("DummyPerson")
                 .surname("Tester")
-                .gender(Gender.M)
+                .gender("M")
                 .zipCode("1000AA")
                 .birthday("22/04/1999")
                 .build();
@@ -112,7 +111,7 @@ public class AccountServiceTest {
                 .id(1L)
                 .firstName("DummyPerson")
                 .surname("Tester")
-                .gender(Gender.M)
+                .gender("M")
                 .zipCode("1000AA")
                 .birthday("22/04/1999")
                 .build();
@@ -120,7 +119,7 @@ public class AccountServiceTest {
 
 
         // when
-        List<AccountDto> accountList = underTest.getAllAccounts();
+        List<AccountDTO> accountList = underTest.getAllAccounts();
 
         // then
         assertThat(accountList).isNotNull();
@@ -137,14 +136,14 @@ public class AccountServiceTest {
                 .id(2L)
                 .firstName("DummyPerson")
                 .surname("Tester")
-                .gender(Gender.M)
+                .gender("M")
                 .zipCode("1000AA")
                 .birthday("22/04/1999")
                 .build();
         given(accountRepository.findAll()).willReturn(Collections.emptyList());
 
         // when
-        List<AccountDto> accountList = underTest.getAllAccounts();
+        List<AccountDTO> accountList = underTest.getAllAccounts();
 
         // then
         assertThat(accountList).isEmpty();
@@ -161,7 +160,7 @@ public class AccountServiceTest {
                 .willReturn(Optional.of(account));
 
         // when
-        AccountDto savedAccount = underTest.getAccountById(account.getId()).get();
+        AccountDTO savedAccount = underTest.getAccountById(account.getId()).get();
 
         // then
         assertThat(savedAccount).isNotNull();
@@ -172,16 +171,26 @@ public class AccountServiceTest {
     @Test
     public void givenAccountObject_whenUpdateAccount_thenReturnUpdatedAccount() {
 
-        // given
-        given((Account) accountRepository.save(account)).willReturn(account);
-        account.setFirstName("Kursad");
+        //Setup
+        account.setId(1L);
+        account.setFirstName("Salim Kurshad");
         account.setSurname("Dursun");
         account.setBirthday("24-02-85");
 
+        accountDto.setId(1L);
+        accountDto.setFirstName("Kursad");
+        accountDto.setSurname("Dursun");
+        accountDto.setBirthday("24-02-85");
+
+        // given
+        given(accountRepository.save(account)).willReturn(account);
+        given(accountRepository.findById(1L)).willReturn(Optional.of(account));
+
         // when
-        AccountDto updatedAccount = underTest.updateAccount(accountDto, account.getId());
+        AccountDTO updatedAccount = underTest.updateAccount(accountDto, account.getId());
 
         // then
+        assertThat(updatedAccount.getId()).isEqualTo(1L);
         assertThat(updatedAccount.getFirstName()).isEqualTo("Kursad");
         assertThat(updatedAccount.getSurname()).isEqualTo("Dursun");
         assertThat(updatedAccount.getBirthday()).isEqualTo("24-02-85");

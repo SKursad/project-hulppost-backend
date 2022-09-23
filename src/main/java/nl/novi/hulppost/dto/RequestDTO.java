@@ -1,7 +1,7 @@
 package nl.novi.hulppost.dto;
 
 import lombok.*;
-import nl.novi.hulppost.model.enums.TypeRequest;
+import nl.novi.hulppost.model.Attachment;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -13,20 +13,23 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @Setter
 @Getter
-public class RequestDto {
+public class RequestDTO {
 
     private Long id;
-    private Long accountId;
+    private Long userId;
+//    private String fileId;
 
+    private Attachment attachment;
     @NotEmpty
     @NotNull(message = "Het veld mag niet onbeschreven zijn")
     @NotBlank(message = "Het veld mag niet leeg zijn")
     @Size(min = 4, message = "De titel van de bericht moet minimaal 4 tekens bevatten")
     private String title;
-    private TypeRequest typeRequest;
+    private String typeRequest;
 
     @NotEmpty
     @NotNull(message = "Het veld mag niet onbeschreven zijn")
     @NotBlank(message = "Het veld mag niet leeg zijn")
-    private  String content;
+    private String content;
+
 }

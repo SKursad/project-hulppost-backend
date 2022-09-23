@@ -1,19 +1,19 @@
 package nl.novi.hulppost.service;
 
-import nl.novi.hulppost.dto.AccountDto;
+import nl.novi.hulppost.dto.AccountDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface AccountService {
 
-    AccountDto saveAccount(AccountDto accountDto);
+    AccountDTO saveAccount(AccountDTO accountDto);
 
-    List<AccountDto> getAllAccounts();
+    List<AccountDTO> getAllAccounts();
 
-    Optional<AccountDto> getAccountById(Long accountId);
+    Optional<AccountDTO> getAccountById(Long accountId);
 
-    AccountDto updateAccount(AccountDto accountDto, Long accountId);
+    AccountDTO updateAccount(AccountDTO accountDto, Long accountId);
 
     void deleteAccount(Long accountId);
 

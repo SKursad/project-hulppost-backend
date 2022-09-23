@@ -1,7 +1,6 @@
 package nl.novi.hulppost.model;
 
 import lombok.Builder;
-import nl.novi.hulppost.model.enums.TypeRequest;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -20,29 +19,29 @@ public class Request {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Enumerated(EnumType.STRING)
-    private TypeRequest typeRequest;
+    private String typeRequest;
 
     @Column(name = "content", nullable = false)
     private String content;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @PrimaryKeyJoinColumn(name = "accountId")
+    @PrimaryKeyJoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Account account;
+    private User user;
 
-    @OneToOne(mappedBy="request", orphanRemoval = true)
+
+    @OneToOne(orphanRemoval = true)
     private Attachment attachment;
 
     public Request() {
     }
 
-    public Request(Long id, String title, TypeRequest typeRequest, String content, Account account, Attachment attachment) {
+    public Request(Long id, String title, String typeRequest, String content, User user, Attachment attachment) {
         this.id = id;
         this.title = title;
         this.typeRequest = typeRequest;
         this.content = content;
-        this.account = account;
+        this.user = user;
         this.attachment = attachment;
     }
 
@@ -62,11 +61,11 @@ public class Request {
         this.title = title;
     }
 
-    public TypeRequest getTypeRequest() {
+    public String getTypeRequest() {
         return typeRequest;
     }
 
-    public void setTypeRequest(TypeRequest typeRequest) {
+    public void setTypeRequest(String typeRequest) {
         this.typeRequest = typeRequest;
     }
 
@@ -78,12 +77,12 @@ public class Request {
         this.content = content;
     }
 
-    public Account getAccount() {
-        return account;
+    public User getUser() {
+        return user;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Attachment getAttachment() {
@@ -93,5 +92,4 @@ public class Request {
     public void setAttachment(Attachment attachment) {
         this.attachment = attachment;
     }
-
 }

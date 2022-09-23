@@ -1,8 +1,9 @@
 package nl.novi.hulppost.service;
 
-import nl.novi.hulppost.dto.RequestDto;
+import nl.novi.hulppost.dto.RequestDTO;
+import nl.novi.hulppost.model.Attachment;
 import nl.novi.hulppost.model.Request;
-import nl.novi.hulppost.model.enums.TypeRequest;
+import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.RequestRepository;
 import nl.novi.hulppost.service.serviceImpl.RequestServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,9 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,27 +32,29 @@ public class RequestServiceTest {
     private RequestRepository requestRepository;
     @InjectMocks
     private RequestServiceImpl underTest;
-    private RequestDto requestDto;
+    private RequestDTO requestDto;
     private Request request;
 
 
     @BeforeEach
     public void setup() {
 //        requestRepository = mock(RequestRepository.class);
-        underTest = new RequestServiceImpl(requestRepository, new ModelMapper());
+        underTest = new RequestServiceImpl(requestRepository);
 
         request = Request.builder()
                 .id(1L)
+                .user(new User())
                 .title("Hulp bij uitlaten van mijn huisdier")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Ik kan niet erg goed lopen door mijn operatie." + "\n" +
                         "Ik zoek iemand die bereid is om mijn hond uit te laten")
                 .build();
 
-        requestDto = RequestDto.builder()
+        requestDto = RequestDTO.builder()
                 .id(1L)
+                .userId(1L)
                 .title("Hulp bij uitlaten van mijn huisdier")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Ik kan niet erg goed lopen door mijn operatie." + "\n" +
                         "Ik zoek iemand die bereid is om mijn hond uit te laten")
                 .build();
@@ -86,15 +89,16 @@ public class RequestServiceTest {
         // given
         Request request1 = Request.builder()
                 .id(1L)
+                .user(new User())
                 .title("Hulp bij uitlaten van mijn huisdier")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Ik kan niet erg goed lopen door mijn operatie en zoek" +
                         " iemand die bereid is om mijn hond uit te laten")
                 .build();
         given(requestRepository.findAll()).willReturn(List.of(request, request1));
 
         // when
-        List<RequestDto> requestList = underTest.getAllRequests();
+        List<RequestDTO> requestList = underTest.getAllRequests(Optional.empty());
 
         // then
         assertThat(requestList).isNotNull();
@@ -110,14 +114,13 @@ public class RequestServiceTest {
         Request request1 = Request.builder()
                 .id(2L)
                 .title("Hulp bij uitlaten van mijn huisdier")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Ik kan niet erg goed lopen door mijn operatie" +
                         " en zoek iemand die bereid is om mijn hond uit te laten")
                 .build();
-        given(requestRepository.findAll()).willReturn(Collections.emptyList());
 
         // when
-        List<RequestDto> requestList = underTest.getAllRequests();
+        List<RequestDTO> requestList = underTest.getAllRequests(Optional.of(1L));
 
         // then
         assertThat(requestList).isEmpty();
@@ -134,7 +137,7 @@ public class RequestServiceTest {
                 .willReturn(Optional.of(request));
 
         // when
-        RequestDto savedRequest = underTest.getRequestById(request.getId()).get();
+        RequestDTO savedRequest = underTest.getRequestById(request.getId()).get();
 
         // then
         assertThat(savedRequest).isNotNull();
@@ -145,27 +148,36 @@ public class RequestServiceTest {
     @Test
     public void givenRequestObject_whenUpdateRequest_thenReturnUpdatedRequest() {
 
-        // given
-        Long requestId = 1L;
-        given(requestRepository.save(request)).willReturn(request);
+        //Setup
+        request.setId(2L);
+        request.setTitle("Hulp bij");
+        request.setTypeRequest("Praktisch");
+        request.setContent("Iemand die mij boekhouding kan nakijken");
 
-        request.setTitle("Hulp bij administratie");
-        request.setTypeRequest(TypeRequest.Praktisch);
-        request.setContent("Iemand gezocht die mij boekhouding kan nakijken");
+        requestDto.setId(2L);
+        requestDto.setTitle("Hulp bij administratie");
+        requestDto.setTypeRequest("Praktisch");
+        requestDto.setContent("Iemand gezocht die mij boekhouding kan nakijken");
+
+        // given
+        given(requestRepository.save(request)).willReturn(request);
+        given(requestRepository.findById(2L)).willReturn(Optional.of(request));
+
+
 
         // when
-        RequestDto updatedRequest = underTest.updateRequest(requestDto, requestId);
+        RequestDTO updatedRequest = underTest.updateRequest(requestDto, request.getId());
 
         // then
         assertThat(updatedRequest.getTitle()).isEqualTo("Hulp bij administratie");
-        assertThat(updatedRequest.getTypeRequest()).isEqualTo(TypeRequest.Praktisch).toString();
+        assertThat(updatedRequest.getTypeRequest()).isEqualTo("Praktisch");
         assertThat(updatedRequest.getContent()).isEqualTo("Iemand gezocht die mij boekhouding kan nakijken");
 
     }
 
     @DisplayName("JUnit test for deleteRequest method")
     @Test
-    public void givenRequestId_whenDeleteRequest_thenNothing() {
+    public void givenRequestId_whenDeleteRequest_thenDoNothing() {
 
         // given
         Long requestId = 1L;

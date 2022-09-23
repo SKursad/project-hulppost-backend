@@ -1,15 +1,16 @@
 package nl.novi.hulppost.controller;
 
-import nl.novi.hulppost.dto.GetUsersDto;
-import nl.novi.hulppost.dto.UserDto;
+import nl.novi.hulppost.dto.UserDTO;
 import nl.novi.hulppost.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/hulppost/users")
@@ -22,13 +23,16 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping()
-    public ResponseEntity<List<GetUsersDto>> getAllUsers() {
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getUsersWithParam(@RequestParam Optional<Long> requestId,
+                                                           @RequestParam Optional<Long> replyId) {
+        return new ResponseEntity<>(userService.getUsersWithParam(requestId, replyId), HttpStatus.OK);
     }
 
+
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getUserById(@Valid @PathVariable(value = "userId") Long userId) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable(value = "userId") Long userId) {
         return userService.getUserById(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -36,17 +40,19 @@ public class UserController {
 
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable(value = "userId") Long userId,
-                                              @Valid @RequestBody UserDto userDto) {
+    @PreAuthorize("@methodLevelSecurityService.isAuthorizedUser(#userId, principal)")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable (value = "userId") Long userId,
+                                              @Valid @RequestBody(required = false) UserDTO userDTO) {
         return userService.getUserById(userId)
                 .map(savedUser -> {
-                    UserDto updatedUser = userService.updateUser(userDto, userId);
+                    UserDTO updatedUser = userService.updateUser(userDTO, userId);
                     return new ResponseEntity<>(updatedUser, HttpStatus.OK);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("@methodLevelSecurityService.isAuthorizedUser(#userId, principal)")
     public ResponseEntity<String> deleteUser(@PathVariable(value = "userId") Long userId) {
         userService.deleteUser(userId);
         return new ResponseEntity<>("Gebruiker succesvol verwijderd ", HttpStatus.OK);

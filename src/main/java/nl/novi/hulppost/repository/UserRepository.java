@@ -5,9 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    List<User> findAll();
 
     User findByUsername(String username);
 
@@ -25,4 +28,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select e from User e where e.username =:username and e.email =:email")
     User findByJPQLNamedParams(@Param("username") String username, @Param("email") String email);
 
+    Optional<User> findById(Long id);
+
+    List<User> findByRequestIdAndReplyId(Long requestId, Long replyId);
+
+    List<User> findByRequestId(Long requestId);
+
+    List<User> findByReplyId(Long replyId);
 }

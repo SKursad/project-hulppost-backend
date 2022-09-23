@@ -1,8 +1,9 @@
 package nl.novi.hulppost.service;
 
-import nl.novi.hulppost.dto.GetUsersDto;
-import nl.novi.hulppost.dto.UserDto;
+import nl.novi.hulppost.dto.UserDTO;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
+import nl.novi.hulppost.model.Reply;
+import nl.novi.hulppost.model.Request;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.UserRepository;
 import nl.novi.hulppost.service.serviceImpl.UserServiceImpl;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,16 +40,17 @@ class UserServiceTest {
     @InjectMocks
     private UserServiceImpl underTest;
 
-    private UserDto userDto;
+    private UserDTO userDTO;
 
     private User user;
+
+    private Reply reply;
 
 
     @BeforeEach
     public void setup() {
 //        userRepository = Mockito.mock(UserRepository.class);
 //        underTest = new UserServiceImpl(userRepository);
-//        passwordEncoder = new BCryptPasswordEncoder();
 
         user = User.builder()
                 .id(1L)
@@ -56,12 +59,31 @@ class UserServiceTest {
                 .password(passwordEncoder.encode("Test1234"))
                 .build();
 
-        userDto = UserDto.builder()
+        userDTO = UserDTO.builder()
                 .id(1L)
                 .username("Kurshad")
                 .email("Kurshad85@gmail.com")
-                .password(passwordEncoder.encode("Test1234"))
                 .build();
+
+    }
+
+    @DisplayName("JUnit test for getUsername method")
+    @Test
+    public void givenUserObject_whenGetUsername_thenVerify() {
+
+        // setup
+        user.setUsername("TestUsername");
+        user.setReply(new ArrayList<Reply>(1));
+        user.setRequest(new ArrayList<Request>(1));
+
+        // given
+        given(userRepository.findByUsername("TestUsername")).willReturn((user));
+
+        // when
+        UserDTO verifyUsername = underTest.getUserByUsername(user.getUsername());
+
+        // then
+        assertThat(verifyUsername.getUsername()).isEqualTo("TestUsername");
 
     }
 
@@ -107,18 +129,23 @@ class UserServiceTest {
         });
 
         // then
-        verify(userRepository, never()).save( any(User.class));
+        verify(userRepository, never()).save(any(User.class));
     }
 
-    // JUnit test for getAllUsers method
+    //     JUnit test for getAllUsers method
     @DisplayName("JUnit test for getAllUsers method")
     @Test
     public void givenUsersList_whenGetAllUsers_thenReturnUsersList() {
+
+        user.setReply(new ArrayList<Reply>(1));
+        user.setRequest(new ArrayList<Request>(1));
 
         // given
         User user1 = User.builder()
                 .id(2L)
                 .username("TestPerson")
+                .reply(new ArrayList<Reply>(1))
+                .request(new ArrayList<Request>(1))
                 .email("test@gmail.com")
                 .password(passwordEncoder.encode("Test1234"))
                 .build();
@@ -126,14 +153,14 @@ class UserServiceTest {
         given(userRepository.findAll()).willReturn(List.of(user, user1));
 
         // when
-        List<GetUsersDto> userList = underTest.getAllUsers();
+        List<UserDTO> userList = underTest.getUsersWithParam(Optional.empty(), Optional.empty());
 
         // then
         assertThat(userList).isNotNull();
         assertThat(userList.size()).isEqualTo(2);
     }
 
-    // JUnit test for getAllUsers method
+    //     JUnit test for getAllUsers method
     @DisplayName("JUnit test for getAllUsers method (negative scenario)")
     @Test
     public void givenEmptyUsersList_whenGetAllUsers_thenReturnEmptyUsersList() {
@@ -145,10 +172,10 @@ class UserServiceTest {
                 .email("test@gmail.com")
                 .build();
 
-        given(userRepository.findAll()).willReturn(Collections.emptyList());
+        lenient().when((userRepository.findAll())).thenReturn(Collections.emptyList());
 
         // when
-        List<GetUsersDto> userList = underTest.getAllUsers();
+        List<UserDTO> userList = underTest.getUsersWithParam(Optional.of(0L), Optional.of(0L));
 
         // then
         assertThat(userList).isEmpty();
@@ -160,12 +187,15 @@ class UserServiceTest {
     @Test
     public void givenUserId_whenGetUserById_thenReturnUserObject() {
 
+        user.setReply(new ArrayList<Reply>(1));
+        user.setRequest(new ArrayList<Request>(1));
+
         // given
         given(userRepository.findById(1L))
                 .willReturn(Optional.of(user));
 
         // when
-        UserDto savedUser = underTest.getUserById(user.getId()).get();
+        UserDTO savedUser = underTest.getUserById(user.getId()).get();
 
         // then
         assertThat(savedUser).isNotNull();
@@ -177,17 +207,28 @@ class UserServiceTest {
     @Test
     public void givenUserObject_whenUpdateUser_thenReturnUpdatedUser() {
 
-        // given
-        given(userRepository.save(user)).willReturn(user);
+        //Setup
+        user.setId(2L);
         user.setEmail("Kur@gmail.com");
         user.setUsername("Kur");
+        user.setReply(new ArrayList<Reply>(1));
+        user.setRequest(new ArrayList<Request>(1));
+
+        userDTO.setId(2L);
+        userDTO.setEmail("Kursad@gmail.com");
+        userDTO.setUsername("Kursad");
+
+        // given
+        given(userRepository.save(user)).willReturn(user);
+        given(userRepository.findById(2L)).willReturn(Optional.of(user));
+
 
         // when
-        UserDto updatedUser = underTest.updateUser(userDto, user.getId());
+        UserDTO updatedUser = underTest.updateUser(userDTO, user.getId());
 
         // then
-        assertThat(updatedUser.getEmail()).isEqualTo("Kur@gmail.com");
-        assertThat(updatedUser.getUsername()).isEqualTo("Kur");
+        assertThat(updatedUser.getEmail()).isEqualTo("Kursad@gmail.com");
+        assertThat(updatedUser.getUsername()).isEqualTo("Kursad");
     }
 
     // JUnit test for deleteUser method

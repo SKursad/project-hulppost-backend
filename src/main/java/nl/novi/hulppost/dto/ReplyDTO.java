@@ -11,10 +11,10 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Setter
 @Getter
-public class ReplyDto {
+public class ReplyDTO {
 
     private Long id;
-    private Long accountId;
+    private Long userId;
     private Long requestId;
 
     @NotEmpty

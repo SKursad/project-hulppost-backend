@@ -1,14 +1,19 @@
 package nl.novi.hulppost.controller;
 
-import nl.novi.hulppost.dto.RequestDto;
+import nl.novi.hulppost.dto.RequestDTO;
+import nl.novi.hulppost.model.Attachment;
+import nl.novi.hulppost.service.FileService;
 import nl.novi.hulppost.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping({"/hulppost/requests"})
@@ -17,43 +22,59 @@ public class RequestController {
     @Autowired
     private RequestService requestService;
 
+    @Autowired
+    private FileService fileService;
 
-    public RequestController(RequestService requestService) {
+
+    public RequestController(RequestService requestService, FileService fileService) {
         this.requestService = requestService;
+        this.fileService = fileService;
     }
 
     @PostMapping
-    public ResponseEntity<RequestDto> saveRequest(@RequestBody @Valid RequestDto requestDto) {
+    public ResponseEntity<RequestDTO> saveRequest(@RequestBody @Valid RequestDTO requestDto) {
         return new ResponseEntity<>(requestService.saveRequest(requestDto), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<RequestDto>> getAllRequests() {
-        return new ResponseEntity<>(requestService.getAllRequests(), HttpStatus.OK);
+    public ResponseEntity<List<RequestDTO>> getAllRequests(@RequestParam Optional<Long> userId) {
+        return new ResponseEntity<>(requestService.getAllRequests(userId), HttpStatus.OK);
     }
 
     @GetMapping({"/{requestId}"})
-    public ResponseEntity<RequestDto> getRequestById(@PathVariable("requestId") Long requestId) {
+    public ResponseEntity<RequestDTO> getRequestById(@PathVariable("requestId") Long requestId) {
         return requestService.getRequestById(requestId).map(ResponseEntity::ok).orElseGet(() ->
-            ResponseEntity.notFound().build());
+                ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{requestId}")
-    public ResponseEntity<RequestDto> updateRequest(@PathVariable(value = "requestId") Long requestId,
-                                              @Valid @RequestBody RequestDto requestDto) {
+    @PreAuthorize("@methodLevelSecurityService.hasAuthToChangeRequest(#requestId, principal)")
+    public ResponseEntity<RequestDTO> updateRequest(@PathVariable(value = "requestId") Long requestId,
+                                                    @Valid @RequestBody RequestDTO requestDto) {
         return requestService.getRequestById(requestId)
                 .map(savedRequest -> {
-                    RequestDto updatedRequest = requestService.updateRequest(requestDto, requestId);
+                    RequestDTO updatedRequest = requestService.updateRequest(requestDto, requestId);
                     return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
     @DeleteMapping({"/{requestId}"})
-    public ResponseEntity<String> deleteComment(@PathVariable("requestId") Long requestId) {
-        this.requestService.deleteRequest(requestId);
+    @PreAuthorize("@methodLevelSecurityService.hasAuthToChangeRequest(#requestId, principal)")
+    public ResponseEntity<String> deleteRequest(@PathVariable("requestId") Long requestId) {
+        requestService.deleteRequest(requestId);
 
         return new ResponseEntity<>("Aanvraag succesvol verwijderd ", HttpStatus.OK);
+    }
+
+    @PostMapping("/{requestId}/image")
+    @PreAuthorize("@methodLevelSecurityService.hasAuthToChangeRequest(#requestId, principal)")
+    public void assignImageToRequest(@PathVariable("requestId") Long requestId,
+                                     @RequestBody MultipartFile file) throws Exception {
+
+        Attachment attachment = fileService.saveAttachment(file, requestId);
+        requestService.assignImageToRequest(attachment.getId(), requestId);
     }
 
 }

@@ -10,4 +10,10 @@ import java.util.Optional;
 public interface ReplyRepository extends JpaRepository <Reply, Long> {
 
     Optional<Reply> findById (Long replyId);
+
+    List<Reply> findByUserIdAndRequestId(Long userId, Long requestId);
+
+    List<Reply> findByUserId(Long userId);
+
+    List<Reply> findByRequestId(Long requestId);
 }

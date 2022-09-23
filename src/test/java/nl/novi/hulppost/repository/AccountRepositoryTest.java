@@ -1,7 +1,6 @@
 package nl.novi.hulppost.repository;
 
 import nl.novi.hulppost.model.Account;
-import nl.novi.hulppost.model.enums.Gender;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,8 +29,7 @@ public class AccountRepositoryTest {
                 .firstName("Salim Kursad")
                 .surname("Dursun")
                 .birthday("24/02/85")
-                .gender(Gender.M)
-                .telNumber("061234567890")
+                .gender("M")
                 .zipCode("1068AB")
                 .build();
     }
@@ -65,8 +63,7 @@ public class AccountRepositoryTest {
                 .firstName("Yusuf")
                 .surname("Emir")
                 .birthday("15/09/2015")
-                .gender(Gender.M)
-                .telNumber("061234567890")
+                .gender("M")
                 .zipCode("1064VV")
                 .build();
         String firstName = "Yusuf";
@@ -89,8 +86,7 @@ public class AccountRepositoryTest {
                 .firstName("Sammy")
                 .surname("Klaver")
                 .birthday("04/05/1993")
-                .gender(Gender.M)
-                .telNumber("061234567890")
+                .gender("M")
                 .zipCode("1466AA")
                 .build();
         String surname = "Klaver";
@@ -113,8 +109,7 @@ public class AccountRepositoryTest {
                 .firstName("Jacqueline")
                 .surname("Roos")
                 .birthday("02/10/1995")
-                .gender(Gender.M)
-                .telNumber("061234567890")
+                .gender("M")
                 .zipCode("1056KP")
                 .build();
 
@@ -150,7 +145,7 @@ public class AccountRepositoryTest {
 //                .firstName("Salim Kursad")
 //                .surname("Dursun")
 //                .birthday("24/02/85")
-//                .gender(Gender.M)
+//                .gender("M")
 //                .telNumber("061234567890")
 //                .zipCode("1068AB")
 //                .build();
@@ -174,7 +169,7 @@ public class AccountRepositoryTest {
 //                .firstName("Salim Kursad")
 //                .surname("Dursun")
 //                .birthday("24/02/85")
-//                .gender(Gender.M)
+//                .gender("M")
 //                .telNumber("061234567890")
 //                .zipCode("1068AB")
 //                .build();
@@ -185,8 +180,7 @@ public class AccountRepositoryTest {
                 .firstName("Sammy")
                 .surname("Klaver")
                 .birthday("04/05/1993")
-                .gender(Gender.M)
-                .telNumber("061234567890")
+                .gender("M")
                 .zipCode("1466AA")
                 .build();
 
@@ -209,8 +203,7 @@ public class AccountRepositoryTest {
                 .firstName("Salim Kursad")
                 .surname("Dursun")
                 .birthday("24/02/85")
-                .gender(Gender.M)
-                .telNumber("061234567890")
+                .gender("M")
                 .zipCode("1068AB")
                 .build();
 
@@ -233,7 +226,7 @@ public class AccountRepositoryTest {
 //                .firstName("Salim Kursad")
 //                .surname("Dursun")
 //                .birthday("24/02/85")
-//                .gender(Gender.M)
+//                .gender("M")
 //                .telNumber("061234567890")
 //                .zipCode("1068AB")
 //                .build();
@@ -255,8 +248,7 @@ public class AccountRepositoryTest {
                 .firstName("Salim Kursad")
                 .surname("Dursun")
                 .birthday("24/02/85")
-                .gender(Gender.M)
-                .telNumber("061234567890")
+                .gender("M")
                 .zipCode("1068AB")
                 .build();
         underTest.save(account);
@@ -264,12 +256,12 @@ public class AccountRepositoryTest {
         // when
         Account savedAccount = underTest.findById(account.getId()).get();
         savedAccount.setFirstName("Salim");
-        savedAccount.setTelNumber("060987654321");
+        savedAccount.setZipCode("1068AB");
         Account updatedAccount = underTest.save(savedAccount);
 
         // then
         assertThat(updatedAccount.getFirstName()).isEqualTo("Salim");
-        assertThat(updatedAccount.getTelNumber()).isEqualTo("060987654321");
+        assertThat(updatedAccount.getZipCode()).isEqualTo("1068AB");
     }
 
     @DisplayName("JUnit test for delete Account operation")
@@ -281,8 +273,7 @@ public class AccountRepositoryTest {
                 .firstName("Salim Kursad")
                 .surname("Dursun")
                 .birthday("24/02/85")
-                .gender(Gender.M)
-                .telNumber("061234567890")
+                .gender("M")
                 .zipCode("1068AB")
                 .build();
         underTest.save(account);

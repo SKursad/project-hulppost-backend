@@ -1,20 +1,15 @@
 package nl.novi.hulppost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.novi.hulppost.dto.ReplyDto;
-import nl.novi.hulppost.dto.RequestDto;
-import nl.novi.hulppost.model.Account;
-import nl.novi.hulppost.model.Reply;
-import nl.novi.hulppost.model.Request;
-import nl.novi.hulppost.model.enums.Gender;
-import nl.novi.hulppost.model.enums.TypeRequest;
-import nl.novi.hulppost.repository.RequestRepository;
-import nl.novi.hulppost.repository.UserRepository;
+import nl.novi.hulppost.config.AppConfiguration;
+import nl.novi.hulppost.config.WebConfiguration;
+import nl.novi.hulppost.dto.ReplyDTO;
 import nl.novi.hulppost.security.CustomUserDetailsService;
 import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
 import nl.novi.hulppost.security.JwtAuthenticationFilter;
 import nl.novi.hulppost.security.JwtTokenProvider;
 import nl.novi.hulppost.service.*;
+import nl.novi.hulppost.service.serviceImpl.FileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -64,7 +58,7 @@ class ReplyControllerTest {
     private AccountService accountService;
 
     @MockBean
-    private AttachmentService attachmentService;
+    private FileService attachmentService;
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
@@ -81,19 +75,28 @@ class ReplyControllerTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @MockBean
+    AppConfiguration appConfiguration;
+
+//    @MockBean
+//    FileServiceImpl fileService;
+
+    @MockBean
+    WebConfiguration webConfiguration;
+
 
     @Test
     public void givenReplyObject_whenCreateReply_thenReturnSavedReply() throws Exception {
 
         // given - precondition or setup
 
-        ReplyDto replyDto = ReplyDto.builder()
+        ReplyDTO replyDto = ReplyDTO.builder()
                 .id(1L)
-                .accountId(1L)
+                .userId(1L)
                 .requestId(1L)
                 .text("Hallo, dit is een reactie op een hulpverzoek")
                 .build();
-        given(replyService.saveReply(any(ReplyDto.class)))
+        given(replyService.saveReply(any(ReplyDTO.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
@@ -113,15 +116,22 @@ class ReplyControllerTest {
     public void givenListOfReplies_whenGetAllReplies_thenReturnRepliesList() throws Exception {
 
         // given
-        List<ReplyDto> listOfReplies = new ArrayList();
-        listOfReplies.add(ReplyDto.builder()
+        List<ReplyDTO> listOfReplies = new ArrayList<>();
+
+        listOfReplies.add(ReplyDTO.builder()
+                .id(1L)
+                .userId(1L)
+                .requestId(1L)
                 .text("Dit is een reactie om te testen")
                 .build());
 
-        listOfReplies.add(ReplyDto.builder()
+        listOfReplies.add(ReplyDTO.builder()
+                .id(1L)
+                .userId(2L)
+                .requestId(2L)
                 .text("Dit is een tweede tekst voor om te testen")
                 .build());
-        given(replyService.getAllReplies()).willReturn(listOfReplies);
+        given(replyService.getAllReplies(Optional.of(1L), Optional.of(2L))).willReturn(listOfReplies);
 
         // when
         ResultActions response = mockMvc.perform(get("/hulppost/replies"));
@@ -138,9 +148,9 @@ class ReplyControllerTest {
 
         // given
         Long replyId = 1L;
-        ReplyDto replyDto = ReplyDto.builder()
+        ReplyDTO replyDto = ReplyDTO.builder()
                 .id(1L)
-                .accountId(1L)
+                .userId(1L)
                 .requestId(2L)
                 .text("De test voor id ophalen van een reactie en dan terug weergeven als een object")
                 .build();
@@ -162,7 +172,7 @@ class ReplyControllerTest {
 
         // given
         Long replyId = 2L;
-        ReplyDto replyDto = ReplyDto.builder()
+        ReplyDTO replyDto = ReplyDTO.builder()
                 .text("Test tekst voor reactie")
                 .build();
         given(replyService.getReplyById(replyId)).willReturn(Optional.empty());
@@ -181,16 +191,16 @@ class ReplyControllerTest {
 
         // given
         Long replyId = 1L;
-        ReplyDto savedReply = ReplyDto.builder()
+        ReplyDTO savedReply = ReplyDTO.builder()
                 .text("Test reactie één")
                 .build();
 
-        ReplyDto updatedReply = ReplyDto.builder()
+        ReplyDTO updatedReply = ReplyDTO.builder()
                 .id(2L)
                 .text("Test reactie twee")
                 .build();
         given(replyService.getReplyById(replyId)).willReturn(Optional.of(savedReply));
-        given(replyService.updateReply(any(ReplyDto.class), anyLong()))
+        given(replyService.updateReply(any(ReplyDTO.class), anyLong()))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when
@@ -208,16 +218,16 @@ class ReplyControllerTest {
 
         // given
         Long replyId = 1L;
-        ReplyDto savedReply = ReplyDto.builder()
+        ReplyDTO savedReply = ReplyDTO.builder()
                 .text("Test reactie")
                 .build();
 
-        ReplyDto updatedReply = ReplyDto.builder()
+        ReplyDTO updatedReply = ReplyDTO.builder()
                 .id(1L)
                 .text("Test reactie")
                 .build();
         given(replyService.getReplyById(replyId)).willReturn(Optional.empty());
-        given(replyService.updateReply(any(ReplyDto.class), anyLong()))
+        given(replyService.updateReply(any(ReplyDTO.class), anyLong()))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when

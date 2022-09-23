@@ -2,7 +2,9 @@ package nl.novi.hulppost.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.novi.hulppost.dto.UserDto;
+import nl.novi.hulppost.config.AppConfiguration;
+import nl.novi.hulppost.config.WebConfiguration;
+import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.payload.Password;
 import nl.novi.hulppost.repository.AccountRepository;
@@ -27,6 +29,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,6 +42,8 @@ class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private AccountService accountService;
@@ -53,7 +58,7 @@ class AuthControllerTest {
     private RequestService requestService;
 
     @MockBean
-    private AttachmentService attachmentService;
+    private FileService attachmentService;
 
     @MockBean
     private CustomUserDetailsService customUserDetailsService;
@@ -67,41 +72,63 @@ class AuthControllerTest {
     @MockBean
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     public AccountRepository accountRepository;
 
     @MockBean
     public UserRepository userRepository;
 
+    @MockBean
+    AppConfiguration appConfiguration;
+
+//    @MockBean
+//    FileServiceImpl fileService;
+
+    @MockBean
+    WebConfiguration webConfiguration;
+
     @Test
     public void givenHelpSeekerObject_whenCreateHelpSeeker_thenReturnSavedHelpSeeker() throws Exception {
 
         // given - precondition or setup
-        User user = User.builder()
-                .username("Kurshad")
-                .email("Kursad85@mail.com")
-                .password("Test1234")
+        RegistrationDTO registrationDTO = RegistrationDTO.builder()
+                .email("some@Email.com")
+                .username("Dommel")
+                .password("Test123")
+                .id(1L)
+                .firstName("TestDummy")
+                .surname("Tester")
+                .gender("M")
+                .zipCode("1000AA")
+                .birthday("22/04/1999")
                 .build();
-        given(userService.registerHelpSeeker(any(UserDto.class)))
+        given(userService.registerHelpSeeker(any(RegistrationDTO.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
         ResultActions response = mockMvc.perform(post("/auth/registration/helpSeeker")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)));
+                .content(objectMapper.writeValueAsString(registrationDTO)));
 
         // then - verify output
         response.andDo(print()).
                 andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username",
-                        is(user.getUsername())))
                 .andExpect(jsonPath("$.email",
-                        is(user.getEmail())))
+                        is(registrationDTO.getEmail())))
+                .andExpect(jsonPath("$.username",
+                        is(registrationDTO.getUsername())))
                 .andExpect(jsonPath("$.password",
-                        is(user.getPassword())));
+                        is(registrationDTO.getPassword())))
+                .andExpect(jsonPath("$.firstName",
+                        is(registrationDTO.getFirstName())))
+                .andExpect(jsonPath("$.surname",
+                        is(registrationDTO.getSurname())))
+                .andExpect(jsonPath("$.gender",
+                        is(registrationDTO.getGender())))
+                .andExpect(jsonPath("$.zipCode",
+                        is(registrationDTO.getZipCode())))
+                .andExpect(jsonPath("$.birthday",
+                        is(registrationDTO.getBirthday())));
 
     }
 
@@ -109,28 +136,44 @@ class AuthControllerTest {
     public void givenVolunteerObject_whenCreateVolunteer_thenReturnSavedVolunteer() throws Exception {
 
         // given - precondition or setup
-        User user = User.builder()
-                .username("Kurshad")
-                .email("Kursad85@mail.com")
-                .password("Test1234")
+        RegistrationDTO registrationDTO = RegistrationDTO.builder()
+                .email("some@Email.com")
+                .username("Dommel")
+                .password("Test123")
+                .id(2L)
+                .firstName("TestDummy")
+                .surname("Tester")
+                .gender("M")
+                .zipCode("1000AA")
+                .birthday("22/04/1999")
                 .build();
-        given(userService.registerVolunteer(any(UserDto.class)))
+        given(userService.registerVolunteer(any(RegistrationDTO.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
         ResultActions response = mockMvc.perform(post("/auth/registration/volunteer")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)));
+                .content(objectMapper.writeValueAsString(registrationDTO)));
 
         // then - verify output
         response.andDo(print()).
                 andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username",
-                        is(user.getUsername())))
                 .andExpect(jsonPath("$.email",
-                        is(user.getEmail())))
+                        is(registrationDTO.getEmail())))
+                .andExpect(jsonPath("$.username",
+                        is(registrationDTO.getUsername())))
                 .andExpect(jsonPath("$.password",
-                        is(user.getPassword())));
+                        is(registrationDTO.getPassword())))
+                .andExpect(jsonPath("$.firstName",
+                        is(registrationDTO.getFirstName())))
+                .andExpect(jsonPath("$.surname",
+                        is(registrationDTO.getSurname())))
+                .andExpect(jsonPath("$.gender",
+                        is(registrationDTO.getGender())))
+                .andExpect(jsonPath("$.zipCode",
+                        is(registrationDTO.getZipCode())))
+                .andExpect(jsonPath("$.birthday",
+                        is(registrationDTO.getBirthday())));
 
     }
 
@@ -138,28 +181,44 @@ class AuthControllerTest {
     public void givenAdminObject_whenCreateAdmin_thenReturnSavedAdmin() throws Exception {
 
         // given - precondition or setup
-        User user = User.builder()
-                .username("Kurshad")
-                .email("Kursad85@mail.com")
-                .password("Test1234")
+        RegistrationDTO registrationDTO = RegistrationDTO.builder()
+                .email("some@Email.com")
+                .username("Dommel")
+                .password("Test123")
+                .id(2L)
+                .firstName("TestDummy")
+                .surname("Tester")
+                .gender("M")
+                .zipCode("1000AA")
+                .birthday("22/04/1999")
                 .build();
-        given(userService.registerAdmin(any(UserDto.class)))
+        given(userService.registerAdmin(any(RegistrationDTO.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
         ResultActions response = mockMvc.perform(post("/auth/registration/admin")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)));
+                .content(objectMapper.writeValueAsString(registrationDTO)));
 
         // then - verify output
         response.andDo(print()).
                 andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username",
-                        is(user.getUsername())))
                 .andExpect(jsonPath("$.email",
-                        is(user.getEmail())))
+                        is(registrationDTO.getEmail())))
+                .andExpect(jsonPath("$.username",
+                        is(registrationDTO.getUsername())))
                 .andExpect(jsonPath("$.password",
-                        is(user.getPassword())));
+                        is(registrationDTO.getPassword())))
+                .andExpect(jsonPath("$.firstName",
+                        is(registrationDTO.getFirstName())))
+                .andExpect(jsonPath("$.surname",
+                        is(registrationDTO.getSurname())))
+                .andExpect(jsonPath("$.gender",
+                        is(registrationDTO.getGender())))
+                .andExpect(jsonPath("$.zipCode",
+                        is(registrationDTO.getZipCode())))
+                .andExpect(jsonPath("$.birthday",
+                        is(registrationDTO.getBirthday())));
 
     }
 
@@ -180,7 +239,7 @@ class AuthControllerTest {
 //        given(userService.checkIfValidOldPassword(user,passwordChange.getOldPassword()))
 //                .willAnswer((invocation) -> invocation.getArgument(0));
         // when - action that's under test
-        mockMvc.perform(MockMvcRequestBuilders.request(HttpMethod.POST, "/auths/changePassword")
+        mockMvc.perform(MockMvcRequestBuilders.request(HttpMethod.POST, "/auth/changePassword")
                         .content(new ObjectMapper().writeValueAsString(passwordChange))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

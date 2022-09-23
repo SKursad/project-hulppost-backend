@@ -1,17 +1,23 @@
 package nl.novi.hulppost.controller.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nl.novi.hulppost.config.AppConfiguration;
+import nl.novi.hulppost.config.WebConfiguration;
+import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.model.Account;
-import nl.novi.hulppost.model.enums.Gender;
+import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.AccountRepository;
 import nl.novi.hulppost.repository.RoleRepository;
 import nl.novi.hulppost.repository.UserRepository;
+import nl.novi.hulppost.service.serviceImpl.FileServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -44,50 +50,64 @@ public class AccountControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    AppConfiguration appConfiguration;
+
+    @MockBean
+    FileServiceImpl fileService;
+
+    @MockBean
+    WebConfiguration webConfiguration;
+
     @BeforeEach
     void setup(){
         accountRepository.deleteAll();
     }
 
     @Test
+//    @WithMockUser (roles = "ADMIN")
     public void givenAccountObject_whenCreateAccount_thenReturnSavedAccount() throws Exception {
 
         // given - precondition or setup
-        Account account = Account.builder()
+        RegistrationDTO helpSeeker = RegistrationDTO.builder()
+                .email("some@Email.com")
+                .username("Dommel")
+                .password("Test123")
                 .id(20L)
                 .firstName("DummyPerson")
                 .surname("Tester")
-                .gender(Gender.M)
+                .gender("M")
                 .zipCode("1000AA")
-                .telNumber("061234567890")
                 .birthday("22/04/1999")
                 .build();
 
+
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/accounts").with(user("Test"))
+        ResultActions response = mockMvc.perform(post("/auth/registration/helpSeeker").with(user("Test"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(account)));
+                .content(objectMapper.writeValueAsString(helpSeeker)));
 
         // then - verify the output
         response.andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.firstName",
-                        is(account.getFirstName())))
+                        is(helpSeeker.getFirstName())))
                 .andExpect(jsonPath("$.surname",
-                        is(account.getSurname())))
+                        is(helpSeeker.getSurname())))
                 .andExpect(jsonPath("$.gender",
-                        is(Gender.M.toString())))
+                        is(helpSeeker.getGender())))
                 .andExpect(jsonPath("$.zipCode",
-                        is(account.getZipCode())))
+                        is(helpSeeker.getZipCode())))
                 .andExpect(jsonPath("$.birthday",
-                        is(account.getBirthday())));
+                        is(helpSeeker.getBirthday())));
     }
 
     @Test
+    @WithMockUser (roles = "ADMIN")
     public void givenListOfAccounts_whenGetAllAccounts_thenReturnAccountsList() throws Exception {
 
         // given
-        List<Account> listOfAccounts = new ArrayList();
+        List<Account> listOfAccounts = new ArrayList<>();
         listOfAccounts.add(Account.builder()
                 .id(10L)
                 .firstName("Kursad")
@@ -114,16 +134,16 @@ public class AccountControllerITest {
     }
 
     @Test
+    @WithMockUser (roles = "ADMIN")
     public void givenAccountId_whenGetAccountById_thenReturnAccountObject() throws Exception {
 
         // given
         Account account = Account.builder()
                 .firstName("Kursad")
                 .surname("Dursun")
-                .gender(Gender.M)
+                .gender("M")
                 .birthday("24/02/1985")
                 .zipCode("1000AA")
-                .telNumber("061234567890")
                 .build();
         accountRepository.save(account);
 
@@ -138,16 +158,15 @@ public class AccountControllerITest {
                 .andExpect(jsonPath("$.surname",
                         is(account.getSurname())))
                 .andExpect(jsonPath("$.gender",
-                        is(Gender.M.toString())))
+                        is(account.getGender())))
                 .andExpect(jsonPath("$.birthday",
                         is(account.getBirthday())))
                 .andExpect(jsonPath("$.zipCode",
-                        is(account.getZipCode())))
-                .andExpect(jsonPath("$.telNumber",
-                        is(account.getTelNumber())));
+                        is(account.getZipCode())));
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     public void givenInvalidAccountId_whenGetAccountById_thenReturnEmpty() throws Exception {
 
         // given
@@ -155,10 +174,9 @@ public class AccountControllerITest {
         Account account = Account.builder()
                 .firstName("Salim")
                 .surname("Dursun")
-                .gender(Gender.M)
+                .gender("M")
                 .birthday("24/02/1985")
                 .zipCode("1000AA")
-                .telNumber("061234567890")
                 .build();
         accountRepository.save(account);
 
@@ -177,10 +195,9 @@ public class AccountControllerITest {
         Account savedAccount = Account.builder()
                 .firstName("Kursad")
                 .surname("Dursun")
-                .gender(Gender.M)
+                .gender("M")
                 .birthday("24/02/1985")
                 .zipCode("1000AA")
-                .telNumber("061234567890")
                 .build();
         accountRepository.save(savedAccount);
 
@@ -188,10 +205,9 @@ public class AccountControllerITest {
                 .id(28L)
                 .firstName("Salim")
                 .surname("Dursun")
-                .gender(Gender.M)
+                .gender("M")
                 .birthday("24/02/1985")
                 .zipCode("1060AA")
-                .telNumber("060987654321")
                 .build();
 
         // when
@@ -206,13 +222,11 @@ public class AccountControllerITest {
                 .andExpect(jsonPath("$.surname",
                         is(updatedAccount.getSurname())))
                 .andExpect(jsonPath("$.gender",
-                        is(updatedAccount.getGender().toString())))
+                        is(updatedAccount.getGender())))
                 .andExpect(jsonPath("$.birthday",
                         is(updatedAccount.getBirthday())))
                 .andExpect(jsonPath("$.zipCode",
-                        is(updatedAccount.getZipCode())))
-                .andExpect(jsonPath("$.telNumber",
-                        is(updatedAccount.getTelNumber())));
+                        is(updatedAccount.getZipCode())));
     }
 
     @Test
@@ -223,20 +237,18 @@ public class AccountControllerITest {
         Account savedAccount = Account.builder()
                 .firstName("Joo")
                 .surname("Peterson")
-                .gender(Gender.M)
+                .gender("M")
                 .birthday("11/05/1995")
                 .zipCode("1346AB")
-                .telNumber("060987654321")
                 .build();
         accountRepository.save(savedAccount);
 
         Account updatedAccount = Account.builder()
                 .firstName("Joop")
                 .surname("Pieterson")
-                .gender(Gender.M)
+                .gender("M")
                 .birthday("11/05/1995")
                 .zipCode("1136AB")
-                .telNumber("060987654321")
                 .build();
 
         // when
@@ -255,10 +267,9 @@ public class AccountControllerITest {
         Account savedAccount = Account.builder()
                 .firstName("Salim")
                 .surname("Dursun")
-                .gender(Gender.M)
+                .gender("M")
                 .birthday("24/02/1985")
                 .zipCode("1060AA")
-                .telNumber("060987654321")
                 .build();
         accountRepository.save(savedAccount);
 

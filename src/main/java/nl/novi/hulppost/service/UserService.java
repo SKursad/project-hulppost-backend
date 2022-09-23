@@ -1,34 +1,34 @@
 package nl.novi.hulppost.service;
 
-import nl.novi.hulppost.dto.GetUsersDto;
-import nl.novi.hulppost.dto.UserDto;
+import nl.novi.hulppost.dto.UserDTO;
+import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.model.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
 
+    //    PageResponse getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir);
 //    List<UserDto> getAllUsers();
-    List<GetUsersDto> getAllUsers();
+    //    Page<User> findByUsername(String username, Pageable page);
+    UserDTO getUserByUsername(String username);
 
-//    Page<User> findByUsername(String username, Pageable page);
+    Optional<UserDTO> getUserById(Long userId);
 
-    Optional<UserDto> getUserById(Long userId);
+    List<UserDTO> getUsersWithParam(Optional<Long> requestId, Optional<Long> replyId);
 
-    UserDto registerHelpSeeker(UserDto userDto);
+    RegistrationDTO registerHelpSeeker(RegistrationDTO registrationDTO);
 
-    UserDto registerVolunteer(UserDto userDto);
+    RegistrationDTO registerVolunteer(RegistrationDTO registrationDTO);
 
-    UserDto registerAdmin(UserDto userDto);
+    RegistrationDTO registerAdmin(RegistrationDTO registrationDTO);
 
     void changePassword(User user, String newPassword);
 
     boolean checkIfValidOldPassword(User user, String oldPassword);
 
-    UserDto updateUser(UserDto userDto, Long userId);
+    UserDTO updateUser(UserDTO userDTO, Long userId);
 
     void deleteUser(Long userId);
 

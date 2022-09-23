@@ -1,10 +1,16 @@
 package nl.novi.hulppost.repository;
 
 import nl.novi.hulppost.model.Attachment;
-import nl.novi.hulppost.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AttachmentRepository extends JpaRepository<Attachment, String> {
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
-    Attachment findByFileName(String fileName);
+public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
+
+    List<Attachment> findByDateBeforeAndRequestIsNull(Date date);
+
+    Optional<Attachment> findById(Long fileId);
+
 }

@@ -1,13 +1,19 @@
 package nl.novi.hulppost.controller.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nl.novi.hulppost.config.AppConfiguration;
+import nl.novi.hulppost.config.WebConfiguration;
+import nl.novi.hulppost.dto.RegistrationDTO;
+import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.UserRepository;
+import nl.novi.hulppost.service.serviceImpl.FileServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,6 +48,15 @@ public class UserControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    AppConfiguration appConfiguration;
+
+    @MockBean
+    FileServiceImpl fileService;
+
+    @MockBean
+    WebConfiguration webConfiguration;
+
     @Autowired
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -57,8 +72,13 @@ public class UserControllerITest {
     public void givenUserObject_whenCreateUser_thenReturnSavedUser() throws Exception {
 
         // given - precondition or setup
-        User volunteer = User.builder()
+        RegistrationDTO volunteer = RegistrationDTO.builder()
                 .id(1L)
+                .firstName("Smith")
+                .surname("Klomp")
+                .gender("M")
+                .birthday("22/09/1988")
+                .zipCode("1088BB")
                 .username("Test")
                 .email("Test@gmail.com")
                 .password("Test1234")

@@ -11,7 +11,6 @@ package nl.novi.hulppost.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
-import nl.novi.hulppost.model.enums.Gender;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -30,31 +29,29 @@ public class Account {
     private String firstName;
     @Column(name = "surname")
     private String surname;
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    @Column(name = "gender")
+    private String gender;
     @Column(name = "birthday")
     private String birthday;
     @Column(name = "zip_code")
     private String zipCode;
-    @Column(name = "tel_number")
-    private String telNumber;
-    @OneToOne( fetch = FetchType.LAZY, cascade = CascadeType.ALL ,mappedBy = "account")
+
+    @OneToOne( fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn(referencedColumnName = "user_id")
-    @JoinColumn( name = "account_Id")
+    @JoinColumn( name = "user_id")
 //    @JsonIgnore
     private User user;
 
     public Account() {
     }
 
-    public Account(Long id, String firstName, String surname, Gender gender, String birthday, String zipCode, String telNumber, User user) {
+    public Account(Long id, String firstName, String surname, String gender, String birthday, String zipCode, User user) {
         this.id = id;
         this.firstName = firstName;
         this.surname = surname;
         this.gender = gender;
         this.birthday = birthday;
         this.zipCode = zipCode;
-        this.telNumber = telNumber;
         this.user = user;
     }
 
@@ -82,11 +79,11 @@ public class Account {
         this.surname = surname;
     }
 
-    public Gender getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(Gender gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
@@ -104,14 +101,6 @@ public class Account {
 
     public void setZipCode(String zipCode) {
         this.zipCode = zipCode;
-    }
-
-    public String getTelNumber() {
-        return telNumber;
-    }
-
-    public void setTelNumber(String telNumber) {
-        this.telNumber = telNumber;
     }
 
     public User getUser() {

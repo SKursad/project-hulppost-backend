@@ -1,59 +1,62 @@
 package nl.novi.hulppost.model;
 
-import nl.novi.hulppost.util.ValidImage;
-import org.hibernate.annotations.GenericGenerator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class Attachment {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String id;
+    @GeneratedValue
+    private Long id;
 
-    private String fileName;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date date;
+
+    private String name;
 
     private String fileType;
 
-    @Lob
-    private byte[] data;
-
     @OneToOne
+    @JsonIgnore
     private Request request;
-
-    public Attachment(String fileName, String fileType, byte[] data) {
-        this.fileName = fileName;
-        this.fileType = fileType;
-        this.data = data;
-    }
-
-
-    public Attachment(String fileName, String fileType, byte[] data, Request request) {
-        this.fileName = fileName;
-        this.fileType = fileType;
-        this.data = data;
-        this.request = request;
-    }
 
     public Attachment() {
     }
 
-    public String getId() {
+    public Attachment(Long id, Date date, String name, String fileType, Request request) {
+        this.id = id;
+        this.date = date;
+        this.name = name;
+        this.fileType = fileType;
+        this.request = request;
+    }
+
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getFileName() {
-        return fileName;
+    public Date getDate() {
+        return date;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getFileType() {
@@ -64,14 +67,6 @@ public class Attachment {
         this.fileType = fileType;
     }
 
-    public byte[] getData() {
-        return data;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
-    }
-
     public Request getRequest() {
         return request;
     }
@@ -79,5 +74,4 @@ public class Attachment {
     public void setRequest(Request request) {
         this.request = request;
     }
-
 }

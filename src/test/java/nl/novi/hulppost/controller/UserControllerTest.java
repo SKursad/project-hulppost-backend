@@ -1,8 +1,10 @@
 package nl.novi.hulppost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.novi.hulppost.dto.GetUsersDto;
-import nl.novi.hulppost.dto.UserDto;
+import nl.novi.hulppost.config.AppConfiguration;
+import nl.novi.hulppost.config.WebConfiguration;
+import nl.novi.hulppost.dto.UserDTO;
+import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.UserRepository;
 import nl.novi.hulppost.security.CustomUserDetailsService;
@@ -16,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -57,7 +60,7 @@ class UserControllerTest {
     private ReplyService replyService;
 
     @MockBean
-    private AttachmentService attachmentService;
+    private FileService attachmentService;
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
@@ -77,6 +80,15 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    AppConfiguration appConfiguration;
+
+//    @MockBean
+//    FileServiceImpl fileService;
+
+    @MockBean
+    WebConfiguration webConfiguration;
+
 
     @Test
     public void givenUserObject_whenCreateUser_thenReturnSavedUser() throws Exception {
@@ -88,7 +100,7 @@ class UserControllerTest {
                 .email("Admin@mail.com")
                 .password("Test1234")
                 .build();
-        given(userService.registerAdmin(any(UserDto.class)))
+        given(userService.registerAdmin(any(RegistrationDTO.class)))
                 .willAnswer((invocation)-> invocation.getArgument(0));
 
         // when - action that's under test
@@ -108,20 +120,22 @@ class UserControllerTest {
 
     }
 
-    // JUnit test for Get All Users REST API
+
+
+//     JUnit test for Get All Users REST API
     @Test
     public void givenListOfUsers_whenGetAllUsers_thenReturnUsersList() throws Exception{
         // given
-        List<GetUsersDto> listOfUsers = new ArrayList<>();
-        listOfUsers.add(GetUsersDto.builder()
+        List<UserDTO> listOfUsers = new ArrayList<>();
+        listOfUsers.add(UserDTO.builder()
                 .username("Kursad")
                 .email("Kurshda85@gmail.com")
                 .build());
-        listOfUsers.add(GetUsersDto.builder()
+        listOfUsers.add(UserDTO.builder()
                 .username("Test")
                 .email("Test@gmail.com")
                 .build());
-        given(userService.getAllUsers()).willReturn(listOfUsers);
+        given(userService.getUsersWithParam(Optional.empty(),Optional.empty())).willReturn(listOfUsers);
 
         // when
         ResultActions response = mockMvc.perform(get("/hulppost/users"));
@@ -141,10 +155,9 @@ class UserControllerTest {
 
         // given
         Long userId = 1L;
-        UserDto userDto = UserDto.builder()
+        UserDTO userDto = UserDTO.builder()
                 .username("Kursad")
                 .email("Kurshad85@gmail.com")
-                .password("Test1234A")
                 .build();
         given(userService.getUserById(userId)).willReturn(Optional.of(userDto));
 
@@ -155,9 +168,7 @@ class UserControllerTest {
         response.andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.username", is(userDto.getUsername())))
-                .andExpect(jsonPath("$.email", is(userDto.getEmail())))
-                .andExpect(jsonPath("$.password", is(userDto.getPassword())));
-
+                .andExpect(jsonPath("$.email", is(userDto.getEmail())));
     }
 
     // negative scenario - valid user id
@@ -167,7 +178,7 @@ class UserControllerTest {
 
         // given
         Long userId = 1L;
-        UserDto userDto = UserDto.builder()
+        RegistrationDTO userDto = RegistrationDTO.builder()
                 .username("Kursad")
                 .email("Kurshad85@gmail.com")
                 .password("Test1234A")
@@ -185,22 +196,23 @@ class UserControllerTest {
 
     // JUnit test for update user REST API - positive scenario
     @Test
+
     public void givenUpdatedUser_whenUpdateUser_thenReturnUpdateUserObject() throws Exception{
 
         // given
         Long userId = 1L;
-        UserDto savedUser = UserDto.builder()
+        UserDTO savedUser = UserDTO.builder()
                 .username("Kursad")
                 .email("Kurshad85@gmail.com")
                 .build();
 
-        UserDto updatedUser = UserDto.builder()
+        UserDTO updatedUser = UserDTO.builder()
                 .id(1L)
                 .username("Salim")
                 .email("Kurshad@live.nl")
                 .build();
         given(userService.getUserById(userId)).willReturn(Optional.of(savedUser));
-        given(userService.updateUser(any(UserDto.class), anyLong()))
+        given(userService.updateUser(any(UserDTO.class), anyLong()))
                 .willAnswer((invocation)-> invocation.getArgument(0));
 
         // when
@@ -231,7 +243,7 @@ class UserControllerTest {
                 .email("Kurshad@live.nl")
                 .build();
         given(userService.getUserById(userId)).willReturn(Optional.empty());
-        given(userService.updateUser(any(UserDto.class), anyLong()))
+        given(userService.updateUser(any(UserDTO.class), anyLong()))
                 .willAnswer((invocation)-> invocation.getArgument(0));
 
         // when

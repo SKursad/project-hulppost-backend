@@ -1,7 +1,6 @@
 package nl.novi.hulppost.repository;
 
 import nl.novi.hulppost.model.Request;
-import nl.novi.hulppost.model.enums.TypeRequest;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +23,7 @@ class RequestRepositoryTest {
         request = Request.builder()
                 .id(1L)
                 .title("Testing request repo")
-                .typeRequest(TypeRequest.Sociaal)
+                .typeRequest("Sociaal")
                 .content("Testing request repository")
                 .build();
 
@@ -39,7 +38,7 @@ class RequestRepositoryTest {
 //        request = Request.builder()
 //                .id(1L)
 //                .title("Testing request repo")
-//                .typeRequest(TypeRequest.Sociaal)
+//                .typeRequest("Sociaal")
 //                .content("Testing request repository")
 //                .build();
 
@@ -58,7 +57,7 @@ class RequestRepositoryTest {
 //        request = Request.builder()
 //                .id(1L)
 //                .title("Testing request repo")
-//                .typeRequest(TypeRequest.Sociaal)
+//                .typeRequest("Sociaal")
 //                .content("Testing request repository")
 //                .build();
 

@@ -1,11 +1,13 @@
 package nl.novi.hulppost.service;
 
-import nl.novi.hulppost.dto.ReplyDto;
-import nl.novi.hulppost.exception.ResourceNotFoundException;
+import nl.novi.hulppost.dto.ReplyDTO;
 import nl.novi.hulppost.model.Reply;
+import nl.novi.hulppost.model.Request;
+import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.ReplyRepository;
+import nl.novi.hulppost.repository.RequestRepository;
+import nl.novi.hulppost.repository.UserRepository;
 import nl.novi.hulppost.service.serviceImpl.ReplyServiceImpl;
-import nl.novi.hulppost.service.serviceImpl.RequestServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,25 +36,38 @@ public class ReplyServiceTest {
     @InjectMocks
     private ReplyServiceImpl underTest;
 
-    private ReplyDto replyDto;
+    private ReplyDTO replyDto;
 
     private Reply reply;
+
+//    private User user;
 
 
     @BeforeEach
     public void setup() {
 //        replyRepository = Mockito.mock(ReplyRepository.class);
-        underTest = new ReplyServiceImpl(replyRepository, new ModelMapper());
+//        underTest = new ReplyServiceImpl(replyRepository);
+
+
 
         reply = Reply.builder()
                 .id(1L)
+                .user(new User())
+                .request(new Request())
                 .text("Dit is een tekst om de servicelaag te testen")
                 .build();
 
-        replyDto = ReplyDto.builder()
+        replyDto = ReplyDTO.builder()
                 .id(1L)
                 .text("Dit is een tekst om de servicelaag te testen")
                 .build();
+
+//        user = User.builder()
+//                .id(1L)
+//                .username("User")
+//                .build();
+
+
 
     }
 
@@ -88,13 +102,16 @@ public class ReplyServiceTest {
         // given
         Reply reply1 = Reply.builder()
                 .id(2L)
+                .user(new User())
+                .request(new Request())
                 .text( "Dit is een tekst om de servicelaag te testen")
                 .build();
+
 
         given(replyRepository.findAll()).willReturn(List.of(reply, reply1));
 
         // when
-        List<ReplyDto> replyList = underTest.getAllReplies();
+        List<ReplyDTO> replyList = underTest.getAllReplies(Optional.empty(), Optional.empty());
 
         // then
         assertThat(replyList).isNotNull();
@@ -115,7 +132,7 @@ public class ReplyServiceTest {
         given(replyRepository.findAll()).willReturn(Collections.emptyList());
 
         // when
-        List<ReplyDto> replyList = underTest.getAllReplies();
+        List<ReplyDTO> replyList = underTest.getAllReplies(Optional.empty(), Optional.empty());
 
         // then
         assertThat(replyList).isEmpty();
@@ -131,7 +148,7 @@ public class ReplyServiceTest {
         given(replyRepository.findById(1L)).willReturn(Optional.of(reply));
 
         // when
-        ReplyDto savedReply = underTest.getReplyById(reply.getId()).get();
+        ReplyDTO savedReply = underTest.getReplyById(reply.getId()).get();
 
         // then
         assertThat(savedReply).isNotNull();
@@ -143,12 +160,21 @@ public class ReplyServiceTest {
     @Test
     public void givenReplyObject_whenUpdateReply_thenReturnUpdatedReply() {
 
+        //Setup
+        reply.setId(1L);
+        reply.setText("Dit is tekst om de servicelaag te testen");
+        reply.setUser(new User());
+        reply.setRequest(new Request());
+
+        replyDto.setId(1L);
+        replyDto.setText("Dit is een tekst om de servicelaag te testen");
+
         // given
         given(replyRepository.save(reply)).willReturn(reply);
-        reply.setText("Dit is een tekst om de servicelaag te testen");
+        given(replyRepository.findById(1L)).willReturn(Optional.of(reply));
 
         // when
-        ReplyDto updatedReply = underTest.updateReply(replyDto, reply.getId());
+        ReplyDTO updatedReply = underTest.updateReply(replyDto, reply.getId());
 
         // then
         assertThat(updatedReply.getText()).isEqualTo("Dit is een tekst om de servicelaag te testen");

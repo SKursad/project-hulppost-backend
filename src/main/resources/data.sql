@@ -25,18 +25,18 @@ VALUES (3, 1),
        (2, 8),
        (3, 9);
 
-INSERT INTO user_accounts (id, first_name, surname, gender, birthday, zip_code, tel_number)
-VALUES (1, 'Fatma', 'Gul', 'V', '01-10-1991', '1068AA', '0612345678'),
-       (2, 'Annie', 'Sprock', 'V', '10-02-1998', '1056BZ', '0628736425'),
-       (3, 'Bas', 'Bodden', 'M', '13-05-1965', '1100DV', '0613456278'),
-       (4, 'Richard', 'Van Riper', 'M', '09-03-1983', '1045PO', '0644189320'),
-       (5, 'Karen', 'Lubben', 'V', '18-01-1966', '1077LA', '0648012545'),
-       (6, 'Yusuf', 'Emir', 'M', '17-09-2000', '1059KE', '0642678020'),
-       (7, 'Isabella', 'Schumacker', 'V', '01-07-1970', '1051PP', '0618006780'),
-       (8, 'Christiaan', 'Ossman', 'M', '16-03-1998', '1067DR', '0648991077'),
-       (9, 'ADMIN', 'PASS', 'M', '24-02-1985', '1069KU', '0624160078');
+INSERT INTO user_accounts (id, first_name, surname, gender, birthday, zip_code)
+VALUES (1, 'Fatma', 'Gul', 'V', '01/10/1991', '1068AA'),
+       (2, 'Annie', 'Sprock', 'V', '10/02/1998', '1056BZ'),
+       (3, 'Bas', 'Bodden', 'M', '13/05/1965', '1100DV'),
+       (4, 'Richard', 'Van Riper', 'M', '09/03/1983', '1045PO'),
+       (5, 'Karen', 'Lubben', 'V', '18/01/1966', '1077LA'),
+       (6, 'Yusuf', 'Emir', 'M', '17/09/2000', '1059KE'),
+       (7, 'Isabella', 'Schumacker', 'V', '01/07/1970', '1051PP'),
+       (8, 'Christiaan', 'Ossman', 'M', '16/03/1998', '1067DR'),
+       (9, 'ADMIN', 'PASS', 'M', '24/02/1985', '1069KU');
 
-INSERT INTO requests (id, title, type_request, content, account_id)
+INSERT INTO requests (id, title, type_request, content, user_id)
 VALUES (1, 'Maaltijden rondbrengen bij ouderen in Osdorp', 'Praktisch',
         'Zorgcentrum HulpOrganisatie in Osdorp is op zoek naar enkele enthousiaste vrijwilligers, die maaltijden bij ouderen in de wijk willen bezorgen. Dit doe je met je eigen auto, de gereden kilometers kunnen worden gedeclareerd.',
         3),
@@ -47,7 +47,7 @@ VALUES (1, 'Maaltijden rondbrengen bij ouderen in Osdorp', 'Praktisch',
         'Werkzaamheden: Senioren leren omgaan met Windows 10, Android of iOS. Bedoeling is om senioren wegwijs te maken met het internet, e-mail, apps, computer-veiligheid en de sociale media. Klassikaal lesgeven met behulp van lesmateriaal.',
         7);
 
-INSERT INTO replies (id, text, account_id, request_id)
+INSERT INTO replies (id, text, user_id, request_id)
 VALUES (1,
         'Hallo, ik ben bereid om de maaltijden te bezorgen aan de ouderen in de wijk u kunt me bereiken via mijn mail RVRiper@gmail.com',
         4, 1),

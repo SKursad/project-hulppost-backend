@@ -1,15 +1,19 @@
 package nl.novi.hulppost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.novi.hulppost.dto.AccountDto;
+import nl.novi.hulppost.config.AppConfiguration;
+import nl.novi.hulppost.config.WebConfiguration;
+import nl.novi.hulppost.dto.AccountDTO;
+import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.model.Account;
-import nl.novi.hulppost.model.enums.Gender;
 import nl.novi.hulppost.repository.AccountRepository;
+import nl.novi.hulppost.repository.UserRepository;
 import nl.novi.hulppost.security.CustomUserDetailsService;
 import nl.novi.hulppost.security.JwtAuthenticationEntryPoint;
 import nl.novi.hulppost.security.JwtAuthenticationFilter;
 import nl.novi.hulppost.security.JwtTokenProvider;
 import nl.novi.hulppost.service.*;
+import nl.novi.hulppost.service.serviceImpl.FileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +46,9 @@ public class AccountControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private AccountService accountService;
 
@@ -55,7 +62,7 @@ public class AccountControllerTest {
     private RequestService requestService;
 
     @MockBean
-    private AttachmentService attachmentService;
+    private FileService attachmentService;
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
@@ -72,74 +79,42 @@ public class AccountControllerTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     public AccountRepository accountRepository;
 
+    @MockBean
+    public UserRepository userRepository;
 
-    @Test
-    public void givenAccountObject_whenCreateAccount_thenReturnSavedAccount() throws Exception {
+    @MockBean
+    AppConfiguration appConfiguration;
 
-        // given - precondition or setup
-        Account account = Account.builder()
-                .id(1L)
-                .firstName("Test")
-                .surname("Person")
-                .birthday("22/02/2002")
-                .gender(Gender.M)
-                .telNumber("06123456789")
-                .zipCode("1455AZ")
-                .build();
+//    @MockBean
+//    FileServiceImpl fileService;
 
-        given(accountService.saveAccount(any(AccountDto.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+    @MockBean
+    WebConfiguration webConfiguration;
 
-        // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/hulppost/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(account)));
-
-        // then - verify output
-        response.andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName",
-                        is(account.getFirstName())))
-                .andExpect(jsonPath("$.surname",
-                        is(account.getSurname())))
-                .andExpect(jsonPath("$.birthday",
-                        is(account.getBirthday())))
-                .andExpect(jsonPath("$.gender",
-                        is(account.getGender().toString())))
-                .andExpect(jsonPath("$.telNumber",
-                        is(account.getTelNumber())))
-                .andExpect(jsonPath("$.zipCode",
-                        is(account.getZipCode())));
-    }
 
     @Test
     public void givenListOfAccounts_whenGetAllAccounts_thenReturnAccountsList() throws Exception {
 
         // given
-        List<AccountDto> listOfAccounts = new ArrayList();
-        listOfAccounts.add(AccountDto.builder()
+        List<AccountDTO> listOfAccounts = new ArrayList<>();
+        listOfAccounts.add(AccountDTO.builder()
                 .id(1L)
                 .firstName("Kursad")
                 .surname("Dursun")
                 .birthday("24/02/1985")
-                .gender(Gender.M)
-                .telNumber("06123456789")
+                .gender("M")
                 .zipCode("1000AA")
                 .build());
 
-        listOfAccounts.add(AccountDto.builder()
+        listOfAccounts.add(AccountDTO.builder()
                 .id(2L)
                 .firstName("Dummy")
                 .surname("Tekst")
                 .birthday("01/02/2000")
-                .gender(Gender.M)
-                .telNumber("06987654321")
+                .gender("M")
                 .zipCode("1000AA")
                 .build());
         given(accountService.getAllAccounts()).willReturn(listOfAccounts);
@@ -159,13 +134,12 @@ public class AccountControllerTest {
 
         // given
         Long accountId = 1L;
-        AccountDto accountDto = AccountDto.builder()
+        AccountDTO accountDto = AccountDTO.builder()
                 .id(1L)
                 .firstName("Test")
                 .surname("Person")
                 .birthday("22/07/2002")
-                .gender(Gender.V)
-                .telNumber("06123456789")
+                .gender("V")
                 .zipCode("1455AZ")
                 .build();
         given(accountService.getAccountById(accountId)).willReturn(Optional.of(accountDto));
@@ -182,13 +156,9 @@ public class AccountControllerTest {
                 .andExpect(jsonPath("$.birthday",
                         is(accountDto.getBirthday())))
                 .andExpect(jsonPath("$.gender",
-                        is(accountDto.getGender().toString())))
-                .andExpect(jsonPath("$.telNumber",
-                        is(accountDto.getTelNumber())))
+                        is(accountDto.getGender())))
                 .andExpect(jsonPath("$.zipCode",
-                        is(accountDto.getZipCode())))
-                .andExpect(jsonPath("$.gender",
-                        is(Gender.V.toString())));
+                        is(accountDto.getZipCode())));
     }
 
     @Test
@@ -196,13 +166,12 @@ public class AccountControllerTest {
 
         // given
         Long accountId = 1L;
-        AccountDto accountDto = AccountDto.builder()
+        AccountDTO accountDto = AccountDTO.builder()
                 .id(1L)
                 .firstName("Anna")
                 .surname("Gouda")
                 .birthday("22/07/2002")
-                .gender(Gender.V)
-                .telNumber("0635790135")
+                .gender("V")
                 .zipCode("1445MM")
                 .build();
         given(accountService.getAccountById(accountId)).willReturn(Optional.empty());
@@ -220,26 +189,24 @@ public class AccountControllerTest {
 
         // given
         Long accountId = 1L;
-        AccountDto savedAccount = AccountDto.builder()
+        AccountDTO savedAccount = AccountDTO.builder()
                 .firstName("Test")
                 .surname("Person")
                 .birthday("18/04/1997")
-                .gender(Gender.M)
-                .telNumber("06123456789")
+                .gender("M")
                 .zipCode("1455AZ")
                 .build();
 
-        AccountDto updatedAccount = AccountDto.builder()
+        AccountDTO updatedAccount = AccountDTO.builder()
                 .id(1L)
                 .firstName("Joop")
                 .surname("Peterson")
                 .birthday("18/04/1984")
-                .gender(Gender.M)
-                .telNumber("06123456789")
+                .gender("M")
                 .zipCode("1455AZ")
                 .build();
         given(accountService.getAccountById(accountId)).willReturn(Optional.of(savedAccount));
-        given(accountService.updateAccount((AccountDto) any(AccountDto.class), anyLong()))
+        given(accountService.updateAccount((AccountDTO) any(AccountDTO.class), anyLong()))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
 
@@ -258,9 +225,7 @@ public class AccountControllerTest {
                 .andExpect(jsonPath("$.birthday",
                         is(updatedAccount.getBirthday())))
                 .andExpect(jsonPath("$.gender",
-                        is(updatedAccount.getGender().toString())))
-                .andExpect(jsonPath("$.telNumber",
-                        is(updatedAccount.getTelNumber())))
+                        is(updatedAccount.getGender())))
                 .andExpect(jsonPath("$.zipCode",
                         is(updatedAccount.getZipCode())));
     }
@@ -270,33 +235,29 @@ public class AccountControllerTest {
     public void givenUpdatedAccount_whenUpdateAccount_thenReturn404() throws Exception {
 
         // given
-        Long accountId = 1L;
-        AccountDto savedAccount = AccountDto.builder()
-                .userId(1L)
+        Long id = 1L;
+        AccountDTO savedAccount = AccountDTO.builder()
                 .firstName("Test")
                 .surname("Person")
                 .birthday("22/07/1999")
-                .gender(Gender.V)
-                .telNumber("06123456789")
+                .gender("V")
                 .zipCode("1455AZ")
                 .build();
 
-        AccountDto updatedAccount = AccountDto.builder()
+        AccountDTO updatedAccount = AccountDTO.builder()
                 .id(1L)
-                .userId(1L)
                 .firstName("Test")
                 .surname("Person")
                 .birthday("22/07/1999")
-                .gender(Gender.V)
-                .telNumber("06123456789")
+                .gender("V")
                 .zipCode("1455AZ")
                 .build();
-        given(accountService.getAccountById(accountId)).willReturn(Optional.empty());
-        given(accountService.updateAccount((AccountDto) any(AccountDto.class), anyLong()))
+        given(accountService.getAccountById(id)).willReturn(Optional.empty());
+        given(accountService.updateAccount((AccountDTO) any(AccountDTO.class), anyLong()))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/accounts/{accountId}", accountId)
+        ResultActions response = mockMvc.perform(put("/hulppost/accounts/{accountId}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedAccount)));
 

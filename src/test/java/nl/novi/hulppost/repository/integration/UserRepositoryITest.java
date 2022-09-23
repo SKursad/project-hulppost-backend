@@ -127,7 +127,7 @@ public class UserRepositoryITest {
 
         // then
         assertThat(savedUser).isNotNull();
-        assertThat(savedUser.getId()).isGreaterThan(0L);
+        assertThat(savedUser.getId()).isGreaterThan(0);
     }
 
     @DisplayName("JUnit test for get all Users operation")
@@ -154,7 +154,7 @@ public class UserRepositoryITest {
 
         // then
         assertThat(UserList).isNotNull();
-        assertThat(UserList.size()).isEqualTo(2);
+        assertThat(UserList.size()).isEqualTo(9);
     }
 
     @DisplayName("JUnit test for get User by id operation")
@@ -223,11 +223,11 @@ public class UserRepositoryITest {
     public void givenUserObject_whenDelete_thenRemoveUser() {
 
         // given
-        User user = User.builder()
-                .username("Kurshad")
-                .email("Kurshad85@gmail.com")
-                .password("Test1234A")
-                .build();
+//        User user = User.builder()
+//                .username("Kurshad")
+//                .email("Kurshad85@gmail.com")
+//                .password("Test1234A")
+//                .build();
         underTest.save(user);
         underTest.deleteById(user.getId());
 

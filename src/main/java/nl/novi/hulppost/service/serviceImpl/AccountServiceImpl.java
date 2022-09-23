@@ -1,11 +1,11 @@
 package nl.novi.hulppost.service.serviceImpl;
 
-import nl.novi.hulppost.dto.AccountDto;
+import nl.novi.hulppost.dto.AccountDTO;
+import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
 import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.repository.AccountRepository;
 import nl.novi.hulppost.service.AccountService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public AccountDto saveAccount(AccountDto accountDto) {
+    public AccountDTO saveAccount(AccountDTO accountDto) {
         Account account = mapToEntity(accountDto);
         Optional<Account> savedAccount = accountRepository.findByFirstNameIgnoreCase(accountDto.getFirstName());
         if (savedAccount.isPresent())
@@ -36,21 +36,21 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public List<AccountDto> getAllAccounts() {
+    public List<AccountDTO> getAllAccounts() {
         List<Account> accountList = accountRepository.findAll();
-        List<AccountDto> accountDtoList = new ArrayList();
+        List<AccountDTO> accountDTOList = new ArrayList();
 
 
         for (Account account : accountList) {
-            AccountDto accountDto = mapToDto(account);
-            accountDtoList.add(accountDto);
+            AccountDTO accountDto = mapToDto(account);
+            accountDTOList.add(accountDto);
         }
 
-        return accountDtoList;
+        return accountDTOList;
     }
 
     @Override
-    public Optional<AccountDto> getAccountById(Long accountId) {
+    public Optional<AccountDTO> getAccountById(Long accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Profiel niet gevonden"));
@@ -59,16 +59,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDto updateAccount(AccountDto accountDto, Long accountId) {
+    public AccountDTO updateAccount(AccountDTO accountDto, Long accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Account", "id", accountId));
 
         account.setFirstName(accountDto.getFirstName());
         account.setSurname(accountDto.getSurname());
-        account.setBirthday(account.getBirthday());
+        account.setBirthday(accountDto.getBirthday());
         account.setZipCode(accountDto.getZipCode());
-        account.setTelNumber(accountDto.getTelNumber());
         account.setGender(accountDto.getGender());
         Account updatedAccount = accountRepository.save(account);
 
@@ -80,37 +79,30 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.deleteById(accountId);
     }
 
-    private AccountDto mapToDto(Account account) {
-        AccountDto accountDto = new AccountDto();
+    private AccountDTO mapToDto(Account account) {
+        AccountDTO accountDto = new AccountDTO();
 
         accountDto.setId(account.getId());
-        accountDto.setUserId(account.getId());
         accountDto.setFirstName(account.getFirstName());
         accountDto.setSurname(account.getSurname());
         accountDto.setBirthday(account.getBirthday());
         accountDto.setZipCode(account.getZipCode());
-        accountDto.setTelNumber(account.getTelNumber());
         accountDto.setGender(account.getGender());
 
         return accountDto;
-//        return mapper.map(account, AccountDto.class);
     }
 
-    private Account mapToEntity(AccountDto accountDto) {
+    private Account mapToEntity(AccountDTO accountDto) {
         Account account = new Account();
 
         account.setId(accountDto.getId());
-        account.setId(accountDto.getUserId());
         account.setFirstName(accountDto.getFirstName());
         account.setSurname(accountDto.getSurname());
         account.setBirthday(accountDto.getBirthday());
         account.setZipCode(accountDto.getZipCode());
-        account.setTelNumber(accountDto.getTelNumber());
         account.setGender(accountDto.getGender());;
 
         return account;
-
-//        return mapper.map(accountDto, Account.class);
     }
 
 }

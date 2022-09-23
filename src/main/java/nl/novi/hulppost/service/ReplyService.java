@@ -1,19 +1,21 @@
 package nl.novi.hulppost.service;
 
-import nl.novi.hulppost.dto.ReplyDto;
+import nl.novi.hulppost.dto.ReplyDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ReplyService {
 
-    ReplyDto saveReply(ReplyDto replyDto);
+    ReplyDTO saveReply(ReplyDTO replyDto);
 
-    List<ReplyDto> getAllReplies();
+//    List<ReplyDto> getAllReplies();
 
-    Optional<ReplyDto> getReplyById(Long replyId);
+    List<ReplyDTO> getAllReplies(Optional<Long> userId, Optional<Long> requestId);
 
-    ReplyDto updateReply(ReplyDto replyDto, Long replyId);
+    Optional<ReplyDTO> getReplyById(Long replyId);
+
+    ReplyDTO updateReply(ReplyDTO replyDto, Long replyId);
 
     void deleteReply(Long replyId);
 

@@ -1,17 +1,16 @@
 package nl.novi.hulppost.util;
 
-import nl.novi.hulppost.service.AttachmentService;
+import nl.novi.hulppost.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.awt.*;
 import java.util.Base64;
 
 public class ImageValidator implements ConstraintValidator<ValidImage, String> {
 
     @Autowired
-    AttachmentService attachmentService;
+    FileService attachmentService;
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {

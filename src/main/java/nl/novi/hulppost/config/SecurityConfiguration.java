@@ -48,6 +48,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors()
+                .and()
                 .csrf().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
@@ -56,29 +58,32 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/upload/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/download/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/hulppost/requests/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/hulppost/requests").permitAll()
-                .antMatchers(HttpMethod.GET, "/hulppost/replies").authenticated()
-                .antMatchers(HttpMethod.GET, "/hulppost/users").authenticated()
+                .antMatchers(HttpMethod.GET, "/hulppost/replies/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/hulppost/users/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/hulppost/accounts").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/requests").hasRole("HELP-SEEKER")
+                .antMatchers(HttpMethod.POST, "/hulppost/requests/**/image").authenticated()
+                .antMatchers(HttpMethod.POST, "/hulppost/requests/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/hulppost/replies/**").authenticated()
                 .antMatchers(HttpMethod.POST, "/hulppost/replies").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/users").hasAnyRole()
-                .antMatchers(HttpMethod.POST, "/hulppost/accounts").hasAnyRole()
-                .antMatchers(HttpMethod.PUT, "/hulppost/requests/**").hasRole("HELP-SEEKER")
+                .antMatchers(HttpMethod.POST, "/hulppost/requests").authenticated()
+                .antMatchers(HttpMethod.POST, "/hulppost/users").authenticated()
+                .antMatchers(HttpMethod.POST, "/hulppost/accounts").authenticated()
+                .antMatchers(HttpMethod.PUT, "/hulppost/requests/**").authenticated()
                 .antMatchers(HttpMethod.PUT, "/hulppost/replies/**").authenticated()
                 .antMatchers(HttpMethod.PUT, "/hulppost/users/**").authenticated()
                 .antMatchers(HttpMethod.PUT, "/hulppost/accounts/**").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/hulppost/accounts/**").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/hulppost/users/**").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/hulppost/replies/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/hulppost/requests/**").hasRole("HELP-SEEKER")
-                .antMatchers(HttpMethod.DELETE, "/hulppost/requests/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/hulppost/requests/**").authenticated()
                 .antMatchers("/auth/**").permitAll()
                 .anyRequest()
                 .authenticated();
+
             http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
     }
 
     @Override

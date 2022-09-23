@@ -1,7 +1,6 @@
 package nl.novi.hulppost.dto;
 
 import lombok.*;
-import nl.novi.hulppost.model.enums.Gender;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -12,11 +11,9 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @Setter
 @Getter
-public class AccountDto {
+public class AccountDTO {
 
     private Long id;
-
-    private Long userId;
 
     @NotNull(message = "Het veld mag niet onbeschreven zijn")
     @NotBlank(message = "Het veld mag niet leeg zijn")
@@ -25,15 +22,15 @@ public class AccountDto {
     @NotNull(message = "Het veld mag niet onbeschreven zijn")
     @NotBlank(message = "Het veld mag niet leeg zijn")
     private String surname;
-    //    @Pattern(regexp = "^M$|^V$")
-    private Gender gender;
+
+    private String gender;
 
     //    @JsonFormat(pattern = "dd-MM-yyyy") // werkt niet met JSON bij het voegen in database
+    @NotNull
     @Pattern(regexp = "^(3[01]|[12]\\d|0[1-9])/(1[0-2]|0[1-9])/\\d{4}$", message = "{project.constraint.dob.Pattern.message}")
     private String birthday;
 
     @Pattern(regexp = "^[1-9][0-9]{3}\\s?([a-zA-Z]{2})?$", message = "{project.constraint.zipCode.Pattern.message}")
     private String zipCode;
 
-    private String telNumber;
 }

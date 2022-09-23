@@ -1,23 +1,25 @@
 package nl.novi.hulppost.service.serviceImpl;
 
 
-import nl.novi.hulppost.dto.GetUsersDto;
-import nl.novi.hulppost.dto.RequestDto;
-import nl.novi.hulppost.dto.UserDto;
+import nl.novi.hulppost.dto.RegistrationDTO;
+import nl.novi.hulppost.dto.UserDTO;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
+import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.Role;
 import nl.novi.hulppost.model.User;
+import nl.novi.hulppost.repository.AccountRepository;
 import nl.novi.hulppost.repository.RoleRepository;
 import nl.novi.hulppost.repository.UserRepository;
+import nl.novi.hulppost.service.FileService;
 import nl.novi.hulppost.service.UserService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,102 +28,107 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private ModelMapper mapper;
+    FileService fileService;
 
     public UserServiceImpl() {
     }
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ModelMapper mapper) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileService fileService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.mapper = mapper;
+        this.fileService = fileService;
     }
 
-//    @Override
-//    public List<UserDto> getAllUsers() {
-//        List<User> userList = userRepository.findAll();
-//        List<UserDto> userDtoList = new ArrayList<>();
-//
-//        for (User user : userList) {
-//            UserDto userDto = mapToDto(user);
-//            userDtoList.add(userDto);
-//        }
-//        return userDtoList;
-//    }
+    @Override
+    public Optional<UserDTO> getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Gebruiker niet gevonden"));
+
+        return Optional.of(mapToDto2(user));
+    }
 
     @Override
-    public List<GetUsersDto> getAllUsers() {
-        List<User> userList = userRepository.findAll();
-        List<GetUsersDto> userDtoList = new ArrayList<>();
+    public List<UserDTO> getUsersWithParam(Optional<Long> requestId, Optional<Long> replyId) {
+        List<User> users;
+        List<UserDTO> userDtoList = new ArrayList<>();
+        if (requestId.isPresent() && replyId.isPresent()) {
+            users = userRepository.findByRequestIdAndReplyId(requestId.get(), replyId.get());
+        } else if (requestId.isPresent()) {
+            users = userRepository.findByRequestId(requestId.get());
+        } else if (replyId.isPresent()) {
+            users = userRepository.findByReplyId(replyId.get());
+        } else
+            users = userRepository.findAll();
 
-        for (User user : userList) {
-            GetUsersDto getUserDto = mapToDto2(user);
-            userDtoList.add(getUserDto);
+        for (User user : users) {
+            UserDTO userDto = mapToDto2(user);
+            userDtoList.add(userDto);
         }
+
         return userDtoList;
     }
 
-//    @Override
-//    public Page<GetUsersDto> getAllUsers(Pageable pageable) {
-//        List<User> userList = userRepository.findAll();
-//        List<GetUsersDto> userDtoList = new ArrayList<>();
-//
-//        for (User user : userList) {
-//            GetUsersDto getUserDto = mapToDto2(user);
-//            userDtoList.add(getUserDto);
-//        }
-//        return userDtoList;
-//    }
-
     @Override
-    public Optional<UserDto> getUserById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new ResourceNotFoundException("Gebruiker niet gevonden"));
-
-        return Optional.of(mapToDto(user));
+    public UserDTO getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username);
+        return (mapToDto2(user));
     }
 
     @Override
-    public UserDto registerHelpSeeker(UserDto userDto) {
-        User user = mapToEntity(userDto);
+    public RegistrationDTO registerHelpSeeker(RegistrationDTO registrationDTO) {
+        User user = mapRegistrationToUser(registrationDTO);
+        Account account = mapRegistrationToAccount(registrationDTO);
 
         Role roles = roleRepository.findByName("ROLE_HELP-SEEKER");
         user.setRoles(Collections.singleton(roles));
 
         User helpSeeker = userRepository.save(user);
 
-        return mapToDto(helpSeeker);
+        Account savedAccount = accountRepository.save(account);
+
+        return mapToRegistrationReplyDto(helpSeeker, savedAccount);
     }
 
     @Override
-    public UserDto registerVolunteer(UserDto userDto) {
-        User user = mapToEntity(userDto);
+    public RegistrationDTO registerVolunteer(RegistrationDTO registrationDTO) {
+        User user = mapRegistrationToUser(registrationDTO);
+        Account account = mapRegistrationToAccount(registrationDTO);
 
         Role roles = roleRepository.findByName("ROLE_VOLUNTEER");
         user.setRoles(Collections.singleton(roles));
 
         User volunteer = userRepository.save(user);
 
-        return mapToDto(volunteer);
+        Account savedAccount = accountRepository.save(account);
+
+        return mapToRegistrationReplyDto(volunteer, savedAccount);
     }
 
+
     @Override
-    public UserDto registerAdmin(UserDto userDto) {
-        User user = mapToEntity(userDto);
+    public RegistrationDTO registerAdmin(RegistrationDTO registrationDTO) {
+        User user = mapRegistrationToUser(registrationDTO);
+        Account account = mapRegistrationToAccount(registrationDTO);
 
         Role roles = roleRepository.findByName("ROLE_ADMIN");
         user.setRoles(Collections.singleton(roles));
 
         User admin = userRepository.save(user);
 
-        return mapToDto(admin);
+        Account savedAccount = accountRepository.save(account);
+
+        return mapToRegistrationReplyDto(admin, savedAccount);
     }
 
     @Override
@@ -143,56 +150,85 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto, Long userId) {
+    public UserDTO updateUser(UserDTO userDTO, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new ResourceNotFoundException("Gebruiker", "id", userId));
 
-        user.setUsername(userDto.getUsername());
-        user.setEmail(userDto.getEmail());
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        if(userDTO.getImage() != null) {
+            String savedImageName;
+            try {
+                savedImageName = fileService.saveProfileImage(userDTO.getImage());
+                fileService.deleteProfileImage(user.getImage());
+                user.setImage(savedImageName);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
         User updatedUser = userRepository.save(user);
-        return mapToDto(updatedUser);
+
+        return mapToDto2(updatedUser);
     }
+
 
     @Override
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }
 
-    public UserDto mapToDto(User user) {
-        UserDto userDto = new UserDto();
+    public UserDTO mapToDto2(User user) {
+        UserDTO userDto = new UserDTO();
 
         userDto.setId(user.getId());
-        userDto.setAccountId(user.getId());
+        userDto.setReplyId(user.getReply().stream().count());
+        userDto.setRequestId(user.getRequest().stream().count());
         userDto.setUsername(user.getUsername());
-        userDto.setPassword(passwordEncoder.encode(user.getPassword()));
         userDto.setEmail(user.getEmail());
+        userDto.setImage(user.getImage());
 
         return userDto;
-//        return mapper.map(user, UserDto.class);
     }
 
-    public GetUsersDto mapToDto2(User user) {
-        GetUsersDto getUsersDto = new GetUsersDto();
+    public RegistrationDTO mapToRegistrationReplyDto(User user, Account account) {
+        RegistrationDTO registrationDTO = new RegistrationDTO();
 
-        getUsersDto.setId(user.getId());
-        getUsersDto.setUsername(user.getUsername());
-        getUsersDto.setEmail(user.getEmail());
+        registrationDTO.setId(user.getId());
+        registrationDTO.setUsername(user.getUsername());
+        registrationDTO.setPassword(passwordEncoder.encode(user.getPassword()));
+        registrationDTO.setEmail(user.getEmail());
+        registrationDTO.setFirstName(account.getFirstName());
+        registrationDTO.setSurname(account.getSurname());
+        registrationDTO.setBirthday(account.getBirthday());
+        registrationDTO.setGender(account.getGender());
+        registrationDTO.setZipCode(account.getZipCode());
 
-        return getUsersDto;
+        return registrationDTO;
+
     }
 
-    public User mapToEntity(UserDto userDto) {
+    public User mapRegistrationToUser(RegistrationDTO registrationDTO) {
         User user = new User();
 
-        user.setId(userDto.getId());
-        user.setId(userDto.getAccountId());
-        user.setUsername(userDto.getUsername());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        user.setEmail(userDto.getEmail());
+        user.setId(registrationDTO.getId());
+        user.setUsername(registrationDTO.getUsername());
+        user.setEmail(registrationDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
 
         return user;
+    }
 
-//        return mapper.map(userDto, User.class);
+    public Account mapRegistrationToAccount(RegistrationDTO registrationDTO) {
+        Account account = new Account();
+
+        account.setId(registrationDTO.getId());
+        account.setFirstName(registrationDTO.getFirstName());
+        account.setSurname(registrationDTO.getSurname());
+        account.setBirthday(registrationDTO.getBirthday());
+        account.setGender(registrationDTO.getGender());
+        account.setZipCode(registrationDTO.getZipCode());
+
+        return account;
     }
 
 }
