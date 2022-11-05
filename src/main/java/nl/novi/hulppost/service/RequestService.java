@@ -19,4 +19,5 @@ public interface RequestService {
 
     void assignImageToRequest(Long fileId, Long requestId);
 
+    void deleteAttachment(Long requestId);
 }

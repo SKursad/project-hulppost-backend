@@ -1,7 +1,7 @@
 package nl.novi.hulppost.controller;
 
 import nl.novi.hulppost.dto.RequestDTO;
-import nl.novi.hulppost.model.Attachment;
+import nl.novi.hulppost.model.FileAttachment;
 import nl.novi.hulppost.service.FileService;
 import nl.novi.hulppost.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping({"/hulppost/requests"})
+@RequestMapping({"/api/v1/requests"})
 public class RequestController {
 
     @Autowired
@@ -65,16 +65,25 @@ public class RequestController {
     public ResponseEntity<String> deleteRequest(@PathVariable("requestId") Long requestId) {
         requestService.deleteRequest(requestId);
 
-        return new ResponseEntity<>("Aanvraag succesvol verwijderd ", HttpStatus.OK);
+        return new ResponseEntity<>("Aanvraag succesvol verwijderd", HttpStatus.OK);
+    }
+
+    @DeleteMapping({"/{requestId}/deleteImage"})
+    @PreAuthorize("@methodLevelSecurityService.hasAuthToChangeRequest(#requestId, principal)")
+    public ResponseEntity<String> deleteAttachment(@PathVariable("requestId") Long requestId) {
+        requestService.deleteAttachment(requestId);
+
+        return new ResponseEntity<>("Bijlage succesvol verwijderd ", HttpStatus.OK);
     }
 
     @PostMapping("/{requestId}/image")
     @PreAuthorize("@methodLevelSecurityService.hasAuthToChangeRequest(#requestId, principal)")
-    public void assignImageToRequest(@PathVariable("requestId") Long requestId,
-                                     @RequestBody MultipartFile file) throws Exception {
+    public ResponseEntity<String> assignImageToRequest(@PathVariable("requestId") Long requestId,
+                                                       @RequestBody(required = false) MultipartFile file) throws Exception {
 
-        Attachment attachment = fileService.saveAttachment(file, requestId);
+        FileAttachment attachment = fileService.saveAttachment(file, requestId);
         requestService.assignImageToRequest(attachment.getId(), requestId);
+        return new ResponseEntity<>("Afbeelding succesvol geüpload", HttpStatus.CREATED);
     }
 
 }

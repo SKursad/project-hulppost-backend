@@ -1,7 +1,7 @@
 package nl.novi.hulppost.service;
 
 import nl.novi.hulppost.dto.RequestDTO;
-import nl.novi.hulppost.model.Attachment;
+import nl.novi.hulppost.model.FileAttachment;
 import nl.novi.hulppost.model.Request;
 import nl.novi.hulppost.model.User;
 import nl.novi.hulppost.repository.RequestRepository;
@@ -13,9 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.w3c.dom.Text;
 
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +44,7 @@ public class RequestServiceTest {
                 .id(1L)
                 .user(new User())
                 .title("Hulp bij uitlaten van mijn huisdier")
+                .fileAttachment(new FileAttachment())
                 .typeRequest("Sociaal")
                 .content("Ik kan niet erg goed lopen door mijn operatie." + "\n" +
                         "Ik zoek iemand die bereid is om mijn hond uit te laten")
@@ -54,6 +54,7 @@ public class RequestServiceTest {
                 .id(1L)
                 .userId(1L)
                 .title("Hulp bij uitlaten van mijn huisdier")
+                .fileAttachment(new FileAttachment())
                 .typeRequest("Sociaal")
                 .content("Ik kan niet erg goed lopen door mijn operatie." + "\n" +
                         "Ik zoek iemand die bereid is om mijn hond uit te laten")
@@ -179,8 +180,25 @@ public class RequestServiceTest {
     @Test
     public void givenRequestId_whenDeleteRequest_thenDoNothing() {
 
+        Request request1 = Request.builder()
+                .id(1L)
+                .title("Hulp bij uitlaten van mijn huisdier")
+                .typeRequest("Sociaal")
+                .content("Ik kan niet erg goed lopen door mijn operatie" +
+                        " en zoek iemand die bereid is om mijn hond uit te laten")
+                .build();
         // given
         Long requestId = 1L;
+//
+        //Setup
+        request.setId(1L);
+        request.setTitle("Hulp bij");
+        request.setTypeRequest("Praktisch");
+        request.setContent("Iemand die mij boekhouding kan nakijken");
+
+//        given(requestRepository.save(request1)).willReturn(request1);
+//        given(requestRepository.findById(1L)).willReturn(Optional.of(request1));
+        given(requestRepository.getById(1L)).willReturn(request1);
         willDoNothing().given(requestRepository).deleteById(requestId);
 
         // when

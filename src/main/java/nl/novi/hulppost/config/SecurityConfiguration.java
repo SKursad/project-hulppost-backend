@@ -30,8 +30,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(){
-        return  new JwtAuthenticationFilter();
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
     }
 
     @Bean
@@ -58,31 +58,38 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/hulppost/requests/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/hulppost/requests").permitAll()
-                .antMatchers(HttpMethod.GET, "/hulppost/replies/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/hulppost/users/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/hulppost/accounts").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/requests/**/image").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/requests/**").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/replies/**").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/replies").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/requests").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/users").authenticated()
-                .antMatchers(HttpMethod.POST, "/hulppost/accounts").authenticated()
-                .antMatchers(HttpMethod.PUT, "/hulppost/requests/**").authenticated()
-                .antMatchers(HttpMethod.PUT, "/hulppost/replies/**").authenticated()
-                .antMatchers(HttpMethod.PUT, "/hulppost/users/**").authenticated()
-                .antMatchers(HttpMethod.PUT, "/hulppost/accounts/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/hulppost/accounts/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/hulppost/users/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/hulppost/replies/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/hulppost/requests/**").authenticated()
-                .antMatchers("/auth/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/images/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/requests").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/requests/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/replies").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/replies/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/accounts").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/v1/accounts/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/requests/**/image").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/requests").hasAnyRole("HELP-SEEKER","ADMIN")
+                .antMatchers(HttpMethod.POST, "/api/v1/replies").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/requests/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/replies/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/users").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/accounts").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/v1/requests/**").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/v1/replies/**").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/v1/users/**").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/v1/users/**/image").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/v1/accounts/**").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/v1/accounts/**").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/v1/users/").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/api/v1/replies/**").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/v1/requests/**").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/v1/users/**/deleteImage").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/v1/requests/**/deleteImage").authenticated()
+                .antMatchers("/api/v1/auth/**").permitAll()
                 .anyRequest()
                 .authenticated();
 
-            http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     }
 

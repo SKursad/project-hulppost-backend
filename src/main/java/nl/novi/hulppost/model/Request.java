@@ -5,6 +5,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.Date;
 
 
 @Builder
@@ -12,16 +13,20 @@ import javax.persistence.*;
 @Entity
 public class Request {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
+
     @Column(name = "title", nullable = false)
     private String title;
-
+    @Column(name = "type_request", nullable = false)
     private String typeRequest;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition="TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -29,20 +34,21 @@ public class Request {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-
-    @OneToOne(orphanRemoval = true)
-    private Attachment attachment;
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private FileAttachment fileAttachment;
 
     public Request() {
     }
 
-    public Request(Long id, String title, String typeRequest, String content, User user, Attachment attachment) {
+    public Request(Long id, Date timestamp, String title, String typeRequest, String content, User user, FileAttachment fileAttachment) {
         this.id = id;
+        this.timestamp = timestamp;
         this.title = title;
         this.typeRequest = typeRequest;
         this.content = content;
         this.user = user;
-        this.attachment = attachment;
+        this.fileAttachment = fileAttachment;
     }
 
     public Long getId() {
@@ -51,6 +57,14 @@ public class Request {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getTitle() {
@@ -85,11 +99,11 @@ public class Request {
         this.user = user;
     }
 
-    public Attachment getAttachment() {
-        return attachment;
+    public FileAttachment getFileAttachment() {
+        return fileAttachment;
     }
 
-    public void setAttachment(Attachment attachment) {
-        this.attachment = attachment;
+    public void setFileAttachment(FileAttachment fileAttachment) {
+        this.fileAttachment = fileAttachment;
     }
 }

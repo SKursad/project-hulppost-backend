@@ -1,10 +1,12 @@
 package nl.novi.hulppost.dto;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Builder
 @NoArgsConstructor
@@ -17,8 +19,9 @@ public class ReplyDTO {
     private Long userId;
     private Long requestId;
 
-    @NotEmpty
-    @NotNull(message = "Het veld mag niet onbeschreven zijn")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
     private String text;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
 }

@@ -1,10 +1,12 @@
 package nl.novi.hulppost.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import nl.novi.hulppost.util.UniqueEmail;
 import nl.novi.hulppost.util.UniqueUsername;
 
 import javax.validation.constraints.*;
+import java.util.Date;
 
 @Builder
 @NoArgsConstructor
@@ -15,40 +17,44 @@ public class RegistrationDTO {
 
     private Long id;
 
-    @NotNull(message = "Het veld mag niet onbeschreven zijn")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
-    @Size(min = 4, message = "De gebruikersnaam moet minimaal 4 karakters bevatten")
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
+    @Size(min = 4, message = "{hulppost.javax.validation.constraints.username.Size.message}")
     @UniqueUsername
-    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.emptySpace.Pattern.message}")
+    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{hulppost.constraints.emptySpace.username.Pattern.message}")
     private String username;
 
     @UniqueEmail
-    @Email(message = "{project.constraint.Email.message}")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
+    @Email(message = "{hulppost.javax.validation.constraints.Email.message}")
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
     private String email;
 
-    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.emptySpace.Pattern.message}")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
 //    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{hulppost.constraints.emptySpace.pass.Pattern.message}")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{hulppost.constraints.password.Pattern.message}")
     private String password;
 
-    @NotNull(message = "Het veld mag niet onbeschreven zijn")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
+
+    private String image;
+
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
+    @Size(min = 4, message = "{hulppost.javax.validation.constraints.firstname.Size.message}")
     private String firstName;
 
-    @NotNull(message = "Het veld mag niet onbeschreven zijn")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
+    @Size(min = 4, message = "{hulppost.javax.validation.constraints.surname.Size.message}")
     private String surname;
-    //    @Pattern(regexp = "^M$|^V$")
-//    @NotNull(message = "Het veld mag niet onbeschreven zijn")
+
+//    @Pattern(regexp = "^M$|^V$")
 //    @Enumerated(EnumType.STRING)
-    @NotBlank(message = "geslacht")
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
+    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{hulppost.constraints.gen.emptySpace.Pattern.message}")
     private String gender;
 
-    //    @JsonFormat(pattern = "dd-MM-yyyy") // werkt niet met JSON bij het voegen in database
-    @Pattern(regexp = "^(3[01]|[12]\\d|0[1-9])/(1[0-2]|0[1-9])/\\d{4}$", message = "{project.constraint.dob.Pattern.message}")
-    private String birthday;
+//    @Pattern(regexp = "^(3[01]|[12]\\d|0[1-9])/(1[0-2]|0[1-9])/\\d{4}$", message = "{hulppost.constraints.dob.Pattern.message}")
+    @NotNull(message = "{hulppost.javax.validation.constraints.dob.NotNull.message}")
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private Date birthday;
 
-    @Pattern(regexp = "^[1-9][0-9]{3}\\s?([a-zA-Z]{2})?$", message = "{project.constraint.zipCode.Pattern.message}")
+    @Pattern(regexp = "^[1-9][0-9]{3}\\s?([a-zA-Z]{2})\\s?$", message = "{hulppost.constraints.zipCode.Pattern.message}")
     private String zipCode;
 }

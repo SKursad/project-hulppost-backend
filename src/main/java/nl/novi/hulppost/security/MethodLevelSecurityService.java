@@ -1,16 +1,10 @@
 package nl.novi.hulppost.security;
 
-import nl.novi.hulppost.model.Account;
-import nl.novi.hulppost.model.Reply;
-import nl.novi.hulppost.model.Request;
-import nl.novi.hulppost.model.User;
-import nl.novi.hulppost.repository.AccountRepository;
-import nl.novi.hulppost.repository.ReplyRepository;
-import nl.novi.hulppost.repository.RequestRepository;
+import nl.novi.hulppost.model.*;
+import nl.novi.hulppost.repository.*;
 
 import java.util.Optional;
 
-import nl.novi.hulppost.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -21,6 +15,9 @@ public class MethodLevelSecurityService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    RoleRepository roleRepository;
 
     @Autowired
     AccountRepository accountRepository;
@@ -49,6 +46,7 @@ public class MethodLevelSecurityService {
         }
         return false;
     }
+
 
     public boolean hasAuthToChangeReply(Long replyId, UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername());

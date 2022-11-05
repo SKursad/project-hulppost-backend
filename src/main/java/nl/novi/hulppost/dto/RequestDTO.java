@@ -1,12 +1,13 @@
 package nl.novi.hulppost.dto;
 
 import lombok.*;
-import nl.novi.hulppost.model.Attachment;
+import nl.novi.hulppost.model.FileAttachment;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Date;
 
 @Builder
 @NoArgsConstructor
@@ -17,19 +18,21 @@ public class RequestDTO {
 
     private Long id;
     private Long userId;
-//    private String fileId;
 
-    private Attachment attachment;
-    @NotEmpty
-    @NotNull(message = "Het veld mag niet onbeschreven zijn")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
-    @Size(min = 4, message = "De titel van de bericht moet minimaal 4 tekens bevatten")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
+
+    private FileAttachment fileAttachment;
+
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
+    @Size(min = 4,max = 50, message = "{hulppost.javax.validation.constraints.title.Size.message}")
     private String title;
+
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
     private String typeRequest;
 
-    @NotEmpty
-    @NotNull(message = "Het veld mag niet onbeschreven zijn")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
+    @Size(max = 2500, message = "{hulppost.javax.validation.constraints.content.Size.message}")
     private String content;
 
 }

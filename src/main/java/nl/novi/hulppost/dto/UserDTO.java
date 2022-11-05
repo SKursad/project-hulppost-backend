@@ -1,11 +1,12 @@
 package nl.novi.hulppost.dto;
 
 import lombok.*;
+import nl.novi.hulppost.model.Role;
 import nl.novi.hulppost.util.UniqueEmail;
 import nl.novi.hulppost.util.UniqueUsername;
-import nl.novi.hulppost.util.ValidImage;
 
 import javax.validation.constraints.*;
+import java.util.Set;
 
 @Builder
 @NoArgsConstructor
@@ -18,19 +19,19 @@ public class UserDTO {
     private Long requestId;
     private Long replyId;
 
-    @NotNull(message = "Het veld mag niet onbeschreven zijn")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
-    @Size(min = 4, message = "De gebruikersnaam moet minimaal 4 karakters bevatten")
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
+    @Size(min = 4, message = "{hulppost.javax.validation.constraints.username.Size.message}")
     @UniqueUsername
-    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.emptySpace.Pattern.message}")
+    @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{hulppost.constraints.emptySpace.username.Pattern.message}")
     private String username;
 
     @UniqueEmail
-    @Email(message = "{project.constraint.Email.message}")
-    @NotBlank(message = "Het veld mag niet leeg zijn")
+    @Email(message = "{hulppost.javax.validation.constraints.Email.message}")
     private String email;
 
-    @ValidImage
+
     private String image;
+
+    private Set<Role> roles;
 
 }

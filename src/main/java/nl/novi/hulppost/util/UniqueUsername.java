@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 
 public @interface UniqueUsername {
 
-    String message() default "Gebruikersnaam moet uniek zijn";
+    String message() default "{hulppost.constraints.username.UniqueUsername.message}";
 
     Class<?>[] groups() default {};
 

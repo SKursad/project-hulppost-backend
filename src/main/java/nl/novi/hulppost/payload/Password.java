@@ -9,8 +9,8 @@ public class Password {
 
         private String email;
         private String oldPassword;
-        @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{project.constraint.emptySpace.Pattern.message}")
-        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{project.constraint.password.Pattern.message}")
+        @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{hulppost.constraints.emptySpace.pass.Pattern.message}")
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{hulppost.constraints.password.Pattern.message}")
         private String newPassword;
 
         public Password(String email, String oldPassword, String newPassword) {

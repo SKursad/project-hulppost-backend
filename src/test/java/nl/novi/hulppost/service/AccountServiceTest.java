@@ -13,7 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +48,7 @@ public class AccountServiceTest {
                 .surname("Tester")
                 .gender("M")
                 .zipCode("1000AA")
-                .birthday("22/04/1999")
+                .birthday(new Date(22/4/1999))
                 .build();
 
         accountDto = AccountDTO.builder()
@@ -54,7 +57,7 @@ public class AccountServiceTest {
                 .surname("Tester")
                 .gender("M")
                 .zipCode("1000AA")
-                .birthday("22/04/1999")
+                .birthday(new Date(22/4/1999))
                 .build();
     }
 
@@ -113,7 +116,7 @@ public class AccountServiceTest {
                 .surname("Tester")
                 .gender("M")
                 .zipCode("1000AA")
-                .birthday("22/04/1999")
+                .birthday(new Date(24/2/1985))
                 .build();
         given(accountRepository.findAll()).willReturn(List.of(account, account1));
 
@@ -138,7 +141,7 @@ public class AccountServiceTest {
                 .surname("Tester")
                 .gender("M")
                 .zipCode("1000AA")
-                .birthday("22/04/1999")
+                .birthday(new Date(1999-4-22))
                 .build();
         given(accountRepository.findAll()).willReturn(Collections.emptyList());
 
@@ -171,16 +174,18 @@ public class AccountServiceTest {
     @Test
     public void givenAccountObject_whenUpdateAccount_thenReturnUpdatedAccount() {
 
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
         //Setup
         account.setId(1L);
         account.setFirstName("Salim Kurshad");
         account.setSurname("Dursun");
-        account.setBirthday("24-02-85");
+        account.setBirthday(new Date(1985/2/24));
 
         accountDto.setId(1L);
         accountDto.setFirstName("Kursad");
         accountDto.setSurname("Dursun");
-        accountDto.setBirthday("24-02-85");
+        accountDto.setBirthday(new Date(1985/2/24));
 
         // given
         given(accountRepository.save(account)).willReturn(account);
@@ -193,7 +198,7 @@ public class AccountServiceTest {
         assertThat(updatedAccount.getId()).isEqualTo(1L);
         assertThat(updatedAccount.getFirstName()).isEqualTo("Kursad");
         assertThat(updatedAccount.getSurname()).isEqualTo("Dursun");
-        assertThat(updatedAccount.getBirthday()).isEqualTo("24-02-85");
+        assertThat(updatedAccount.getBirthday()).isEqualTo(new Date(1985/2/24));
 
     }
 

@@ -1,40 +1,32 @@
 package nl.novi.hulppost.controller;
 
 import nl.novi.hulppost.dto.AccountDTO;
-import nl.novi.hulppost.model.Attachment;
 import nl.novi.hulppost.service.AccountService;
-import nl.novi.hulppost.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.Base64;
 import java.util.List;
 
 @RestController
-@RequestMapping({"/hulppost/accounts"})
+@RequestMapping({"/api/v1/accounts"})
 public class AccountController {
 
     @Autowired
     private AccountService accountService;
 
-    @Autowired
-    private FileService fileService;
 
-    public AccountController(AccountService accountService, FileService fileService) {
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
-        this.fileService = fileService;
     }
 
     @GetMapping
     public ResponseEntity<List<AccountDTO>> getAllAccounts() {
         return new ResponseEntity<>(accountService.getAllAccounts(), HttpStatus.OK);
     }
-
 
     @GetMapping({"/{accountId}"})
     public ResponseEntity<AccountDTO> getAccountById(@PathVariable("accountId") @Valid Long accountId) {

@@ -9,8 +9,6 @@ public interface ReplyService {
 
     ReplyDTO saveReply(ReplyDTO replyDto);
 
-//    List<ReplyDto> getAllReplies();
-
     List<ReplyDTO> getAllReplies(Optional<Long> userId, Optional<Long> requestId);
 
     Optional<ReplyDTO> getReplyById(Long replyId);

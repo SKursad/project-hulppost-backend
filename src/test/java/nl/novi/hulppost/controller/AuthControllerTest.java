@@ -1,6 +1,7 @@
 package nl.novi.hulppost.controller;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.novi.hulppost.config.AppConfiguration;
 import nl.novi.hulppost.config.WebConfiguration;
@@ -24,6 +25,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -100,15 +106,17 @@ class AuthControllerTest {
                 .surname("Tester")
                 .gender("M")
                 .zipCode("1000AA")
-                .birthday("22/04/1999")
+                .birthday(new Date(1999-4-22))
                 .build();
         given(userService.registerHelpSeeker(any(RegistrationDTO.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/auth/registration/helpSeeker")
+        ResultActions response = mockMvc.perform(post("/api/v1/auth/registration/helpSeeker")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registrationDTO)));
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
         // then - verify output
         response.andDo(print()).
@@ -128,13 +136,15 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.zipCode",
                         is(registrationDTO.getZipCode())))
                 .andExpect(jsonPath("$.birthday",
-                        is(registrationDTO.getBirthday())));
+                        is(df.format(registrationDTO.getBirthday()))));
 
     }
 
     @Test
+    @JsonFormat(pattern="yyyy-MM-dd")
     public void givenVolunteerObject_whenCreateVolunteer_thenReturnSavedVolunteer() throws Exception {
 
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         // given - precondition or setup
         RegistrationDTO registrationDTO = RegistrationDTO.builder()
                 .email("some@Email.com")
@@ -145,13 +155,13 @@ class AuthControllerTest {
                 .surname("Tester")
                 .gender("M")
                 .zipCode("1000AA")
-                .birthday("22/04/1999")
+                .birthday(new Date(1999/2/22))
                 .build();
         given(userService.registerVolunteer(any(RegistrationDTO.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/auth/registration/volunteer")
+        ResultActions response = mockMvc.perform(post("/api/v1/auth/registration/volunteer")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registrationDTO)));
 
@@ -173,13 +183,14 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.zipCode",
                         is(registrationDTO.getZipCode())))
                 .andExpect(jsonPath("$.birthday",
-                        is(registrationDTO.getBirthday())));
+                        is(df.format(registrationDTO.getBirthday()))));
 
     }
 
     @Test
     public void givenAdminObject_whenCreateAdmin_thenReturnSavedAdmin() throws Exception {
 
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         // given - precondition or setup
         RegistrationDTO registrationDTO = RegistrationDTO.builder()
                 .email("some@Email.com")
@@ -190,13 +201,13 @@ class AuthControllerTest {
                 .surname("Tester")
                 .gender("M")
                 .zipCode("1000AA")
-                .birthday("22/04/1999")
+                .birthday(new Date(1999-4-22))
                 .build();
         given(userService.registerAdmin(any(RegistrationDTO.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/auth/registration/admin")
+        ResultActions response = mockMvc.perform(post("/api/v1/auth/registration/admin")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registrationDTO)));
 
@@ -218,7 +229,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.zipCode",
                         is(registrationDTO.getZipCode())))
                 .andExpect(jsonPath("$.birthday",
-                        is(registrationDTO.getBirthday())));
+                        is(df.format(registrationDTO.getBirthday()))));
 
     }
 
@@ -239,7 +250,7 @@ class AuthControllerTest {
 //        given(userService.checkIfValidOldPassword(user,passwordChange.getOldPassword()))
 //                .willAnswer((invocation) -> invocation.getArgument(0));
         // when - action that's under test
-        mockMvc.perform(MockMvcRequestBuilders.request(HttpMethod.POST, "/auth/changePassword")
+        mockMvc.perform(MockMvcRequestBuilders.request(HttpMethod.POST, "/api/v1/auth/changePassword")
                         .content(new ObjectMapper().writeValueAsString(passwordChange))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

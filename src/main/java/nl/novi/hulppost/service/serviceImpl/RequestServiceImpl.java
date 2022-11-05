@@ -2,7 +2,7 @@ package nl.novi.hulppost.service.serviceImpl;
 
 import nl.novi.hulppost.dto.RequestDTO;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
-import nl.novi.hulppost.model.Attachment;
+import nl.novi.hulppost.model.FileAttachment;
 import nl.novi.hulppost.model.Request;
 import nl.novi.hulppost.repository.AttachmentRepository;
 import nl.novi.hulppost.repository.RequestRepository;
@@ -51,31 +51,30 @@ public class RequestServiceImpl implements RequestService {
     }
 
 
-
     @Override
-    public RequestDTO saveRequest(RequestDTO requestDto) {
-        Request request = mapToEntity(requestDto);
-        if (request.getAttachment() != null) {
-           Attachment inDB = attachmentRepository.findById(request.getAttachment().getId()).get();
+    public RequestDTO saveRequest(RequestDTO requestDTO) {
+        Request request = mapToEntity(requestDTO);
+        if (request.getFileAttachment() != null) {
+            FileAttachment inDB = attachmentRepository.findById(request.getFileAttachment().getId()).get();
             inDB.setRequest(request);
-            request.setAttachment(inDB);
+            request.setFileAttachment(inDB);
         }
         Request newRequest = requestRepository.save(request);
-        return mapToDto(newRequest);
+        return mapToDTO(newRequest);
     }
 
     @Override
     public List<RequestDTO> getAllRequests(Optional<Long> userId) {
         List<Request> requests;
-        List<RequestDTO> requestDTOList = new ArrayList();
-        if (userId.isPresent()) {
+        List<RequestDTO> requestDTOList = new ArrayList<>();
+        if (userId.isPresent()){
             requests = requestRepository.findByUserId(userId.get());
         } else
             requests = requestRepository.findAll();
 
         for (Request request : requests) {
-            RequestDTO requestDto = mapToDto(request);
-            requestDTOList.add(requestDto);
+            RequestDTO requestDTO = mapToDTO(request);
+            requestDTOList.add(requestDTO);
         }
 
         return requestDTOList;
@@ -87,78 +86,92 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Aanvraag niet gevonden"));
 
-        return Optional.of(mapToDto(request));
+        return Optional.of(mapToDTO(request));
     }
 
     @Override
-    public RequestDTO updateRequest(RequestDTO requestDto, Long requestId) {
-        Request request = requestRepository.findById(requestId)
+    public RequestDTO updateRequest(RequestDTO requestDTO, Long requestId) {
+        Request inDB = requestRepository.findById(requestId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Aanvraag", "id", requestId));
 
-        request.setTitle(requestDto.getTitle());
-        request.setTypeRequest(requestDto.getTypeRequest());
-        request.setContent(requestDto.getContent());
-        Request updatedRequest = requestRepository.save(request);
+        inDB.setTitle(requestDTO.getTitle());
+        inDB.setTypeRequest(requestDTO.getTypeRequest());
+        inDB.setContent(requestDTO.getContent());
+        Request updatedRequest = requestRepository.save(inDB);
 
-        return mapToDto(updatedRequest);
+        return mapToDTO(updatedRequest);
     }
 
     @Override
     public void deleteRequest(Long requestId) {
         Request request = requestRepository.getById(requestId);
-        if(request.getAttachment() != null) {
-            fileService.deleteAttachmentImage(request.getAttachment().getName());
+        if (request.getFileAttachment() != null) {
+            fileService.deleteAttachmentImage(request.getFileAttachment().getName());
         }
         requestRepository.deleteById(requestId);
     }
 
     public void assignImageToRequest(Long fileId, Long requestId) {
+        Request request = requestRepository.getById(requestId);
 
         Optional<Request> optionalRequest = requestRepository.findById(requestId);
-        Optional<Attachment> attachment = attachmentRepository.findById(fileId);
+        Optional<FileAttachment> attachment = attachmentRepository.findById(fileId);
 
         if (optionalRequest.isPresent() && attachment.isPresent()) {
-            Attachment image = attachment.get();
-            Request request = optionalRequest.get();
-            request.setAttachment(image);
-            requestRepository.save(request);
+            if (request.getFileAttachment() != null) {
+                fileService.deleteAttachmentImage(request.getFileAttachment().getName());
+            }
+            FileAttachment image = attachment.get();
+            Request requestNewImage = optionalRequest.get();
+            request.setFileAttachment(image);
+            requestRepository.save(requestNewImage);
         }
     }
 
-
-        private RequestDTO mapToDto(Request request) {
-
-        RequestDTO requestDto = new RequestDTO();
-
-        requestDto.setId(request.getId());
-        requestDto.setUserId(request.getUser().getId());
-//        requestDto.setAttachment(attachmentRepository.getById(request.getAttachment().getId()));
-//        attachmentRepository.getById(requestDto.getAttachment().getId());
-        requestDto.setAttachment(request.getAttachment());
-        requestDto.setTitle(request.getTitle());
-        requestDto.setContent(request.getContent());
-        requestDto.setTypeRequest(request.getTypeRequest());
-
-        return requestDto;
+    @Override
+    public void deleteAttachment(Long requestId) {
+        Request inDB = requestRepository.getById(requestId);
+        try {
+            fileService.deleteAttachmentImage(inDB.getFileAttachment().getName());
+            inDB.setFileAttachment(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        Request deletedAttachment = requestRepository.save(inDB);
+        mapToDTO(deletedAttachment);
     }
 
-    private Request mapToEntity(RequestDTO requestDto) {
+
+    private RequestDTO mapToDTO(Request request) {
+
+        RequestDTO requestDTO = new RequestDTO();
+
+        requestDTO.setId(request.getId());
+        requestDTO.setTimestamp(request.getTimestamp());
+        requestDTO.setUserId(request.getUser().getId());
+        requestDTO.setFileAttachment(request.getFileAttachment());
+        requestDTO.setTitle(request.getTitle());
+        requestDTO.setContent(request.getContent());
+        requestDTO.setTypeRequest(request.getTypeRequest());
+
+        return requestDTO;
+    }
+
+    private Request mapToEntity(RequestDTO requestDTO) {
 
         Request request = new Request();
 
-        request.setId(requestDto.getId());
-//        if(request.getAttachment() != null) {
-//            request.setAttachment(requestDto.getAttachment());
-//        }
-        request.setAttachment(requestDto.getAttachment());
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
 
+        request.setId(requestDTO.getId());
+        request.setTimestamp(requestDTO.getTimestamp());
+        request.setFileAttachment(requestDTO.getFileAttachment());
         request.setUser(userRepository.findByUsername(username));
-        request.setTitle(requestDto.getTitle());
-        request.setContent(requestDto.getContent());
-        request.setTypeRequest(requestDto.getTypeRequest());
+        request.setTitle(requestDTO.getTitle());
+        request.setContent(requestDTO.getContent());
+        request.setTypeRequest(requestDTO.getTypeRequest());
 
         return request;
     }

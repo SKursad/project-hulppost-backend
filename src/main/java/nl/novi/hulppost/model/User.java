@@ -1,6 +1,6 @@
 /**
  * @Author - S.K. Dursun
- * @Version - 0.1 / 27-04-2022
+ * @Version - 1 / 27-04-2022
  * <p>
  * Copyright (c) Novi University, Edu.
  * <p>
@@ -9,12 +9,7 @@
 
 package nl.novi.hulppost.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
 import java.util.List;
 import java.util.Set;
@@ -39,16 +34,15 @@ public class User {
 
     private String image;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
-    @PrimaryKeyJoinColumn(referencedColumnName = "user_id")
-//    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Account account;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Request> request;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Reply> reply;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",

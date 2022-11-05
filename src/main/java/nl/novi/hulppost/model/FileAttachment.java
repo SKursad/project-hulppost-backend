@@ -1,15 +1,17 @@
 package nl.novi.hulppost.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class Attachment {
+public class FileAttachment {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -21,19 +23,11 @@ public class Attachment {
 
     @OneToOne
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Request request;
 
-    public Attachment() {
+    public FileAttachment() {
     }
-
-    public Attachment(Long id, Date date, String name, String fileType, Request request) {
-        this.id = id;
-        this.date = date;
-        this.name = name;
-        this.fileType = fileType;
-        this.request = request;
-    }
-
 
     public Long getId() {
         return id;

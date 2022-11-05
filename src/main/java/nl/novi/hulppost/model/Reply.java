@@ -6,6 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Builder
 @Table(name = "replies")
@@ -15,8 +16,11 @@ public class Reply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "text", nullable = false)
+    @Column(name = "text", nullable = false, columnDefinition="TEXT")
     private String text;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
@@ -32,9 +36,10 @@ public class Reply {
     public Reply() {
     }
 
-    public Reply(Long id, String text, User user, Request request) {
+    public Reply(Long id, String text, Date timestamp, User user, Request request) {
         this.id = id;
         this.text = text;
+        this.timestamp =timestamp;
         this.user = user;
         this.request = request;
     }
@@ -53,6 +58,14 @@ public class Reply {
 
     public String getText() {
         return text;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
     public void setUser(User user) {

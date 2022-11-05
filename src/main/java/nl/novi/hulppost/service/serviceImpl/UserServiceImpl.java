@@ -3,6 +3,7 @@ package nl.novi.hulppost.service.serviceImpl;
 
 import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.dto.UserDTO;
+import nl.novi.hulppost.dto.UserImageDTO;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
 import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.model.Role;
@@ -55,13 +56,14 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Gebruiker niet gevonden"));
 
-        return Optional.of(mapToDto2(user));
+        return Optional.of(mapToDTO(user));
     }
+
 
     @Override
     public List<UserDTO> getUsersWithParam(Optional<Long> requestId, Optional<Long> replyId) {
         List<User> users;
-        List<UserDTO> userDtoList = new ArrayList<>();
+        List<UserDTO> userDTOList = new ArrayList<>();
         if (requestId.isPresent() && replyId.isPresent()) {
             users = userRepository.findByRequestIdAndReplyId(requestId.get(), replyId.get());
         } else if (requestId.isPresent()) {
@@ -72,17 +74,17 @@ public class UserServiceImpl implements UserService {
             users = userRepository.findAll();
 
         for (User user : users) {
-            UserDTO userDto = mapToDto2(user);
-            userDtoList.add(userDto);
+            UserDTO userDTO = mapToDTO(user);
+            userDTOList.add(userDTO);
         }
 
-        return userDtoList;
+        return userDTOList;
     }
 
     @Override
     public UserDTO getUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
-        return (mapToDto2(user));
+        return (mapToDTO(user));
     }
 
     @Override
@@ -97,7 +99,7 @@ public class UserServiceImpl implements UserService {
 
         Account savedAccount = accountRepository.save(account);
 
-        return mapToRegistrationReplyDto(helpSeeker, savedAccount);
+        return mapToRegistrationDTO(helpSeeker, savedAccount);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class UserServiceImpl implements UserService {
 
         Account savedAccount = accountRepository.save(account);
 
-        return mapToRegistrationReplyDto(volunteer, savedAccount);
+        return mapToRegistrationDTO(volunteer, savedAccount);
     }
 
 
@@ -128,8 +130,9 @@ public class UserServiceImpl implements UserService {
 
         Account savedAccount = accountRepository.save(account);
 
-        return mapToRegistrationReplyDto(admin, savedAccount);
+        return mapToRegistrationDTO(admin, savedAccount);
     }
+
 
     @Override
     public User findUserByEmail(String email) {
@@ -151,24 +154,33 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO updateUser(UserDTO userDTO, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()
+        User inDB = userRepository.findById(userId).orElseThrow(()
                 -> new ResourceNotFoundException("Gebruiker", "id", userId));
 
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        if(userDTO.getImage() != null) {
-            String savedImageName;
+        inDB.setUsername(userDTO.getUsername());
+        inDB.setEmail(userDTO.getEmail());
+        User updatedUser = userRepository.save(inDB);
+        return mapToDTO(updatedUser);
+    }
+
+    @Override
+    public UserImageDTO updateUserImage(UserImageDTO userImageDTO, Long userId) {
+        User inDB = userRepository.findById(userId).orElseThrow(()
+                -> new ResourceNotFoundException("Gebruiker", "id", userId));
+
+        if (userImageDTO.getImage() != null) {
+            String newImage;
             try {
-                savedImageName = fileService.saveProfileImage(userDTO.getImage());
-                fileService.deleteProfileImage(user.getImage());
-                user.setImage(savedImageName);
+                newImage = fileService.saveProfileImage(userImageDTO.getImage());
+                fileService.deleteProfileImage(inDB.getImage());
+                inDB.setImage(newImage);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
-        User updatedUser = userRepository.save(user);
+        User updatedImage = userRepository.save(inDB);
 
-        return mapToDto2(updatedUser);
+        return mapToDtoImage(updatedImage);
     }
 
 
@@ -177,24 +189,50 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
-    public UserDTO mapToDto2(User user) {
-        UserDTO userDto = new UserDTO();
-
-        userDto.setId(user.getId());
-        userDto.setReplyId(user.getReply().stream().count());
-        userDto.setRequestId(user.getRequest().stream().count());
-        userDto.setUsername(user.getUsername());
-        userDto.setEmail(user.getEmail());
-        userDto.setImage(user.getImage());
-
-        return userDto;
+    @Override
+    public void deleteImage(Long userId) {
+        User inDB = userRepository.findById(userId).orElseThrow(()
+                -> new ResourceNotFoundException("Gebruiker", "id", userId));
+        try {
+            fileService.deleteProfileImage(inDB.getImage());
+            inDB.setImage(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        User deletedImage = userRepository.save(inDB);
+        mapToDtoImage(deletedImage);
     }
 
-    public RegistrationDTO mapToRegistrationReplyDto(User user, Account account) {
+
+    public UserImageDTO mapToDtoImage(User user) {
+        UserImageDTO userImageDTO = new UserImageDTO();
+
+        userImageDTO.setId(user.getId());
+        userImageDTO.setImage(user.getImage());
+
+        return userImageDTO;
+    }
+
+    public UserDTO mapToDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+
+        userDTO.setId(user.getId());
+        userDTO.setReplyId((long) user.getReply().size());
+        userDTO.setRequestId((long) user.getRequest().size());
+        userDTO.setUsername(user.getUsername());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setImage(user.getImage());
+        userDTO.setRoles(user.getRoles());
+
+        return userDTO;
+    }
+
+    public RegistrationDTO mapToRegistrationDTO(User user, Account account) {
         RegistrationDTO registrationDTO = new RegistrationDTO();
 
         registrationDTO.setId(user.getId());
         registrationDTO.setUsername(user.getUsername());
+        registrationDTO.setImage(user.getImage());
         registrationDTO.setPassword(passwordEncoder.encode(user.getPassword()));
         registrationDTO.setEmail(user.getEmail());
         registrationDTO.setFirstName(account.getFirstName());
@@ -211,6 +249,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
 
         user.setId(registrationDTO.getId());
+        user.setImage(registrationDTO.getImage());
         user.setUsername(registrationDTO.getUsername());
         user.setEmail(registrationDTO.getEmail());
         user.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));

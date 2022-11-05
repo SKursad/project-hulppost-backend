@@ -7,13 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/hulppost/replies")
+@RequestMapping("/api/v1/replies")
 public class ReplyController {
 
     @Autowired
@@ -61,7 +60,7 @@ public class ReplyController {
     @PreAuthorize("@methodLevelSecurityService.hasAuthToChangeReply(#replyId, principal)")
     public ResponseEntity<String> deleteComment(@PathVariable("replyId") Long replyId) {
         this.replyService.deleteReply(replyId);
-        return new ResponseEntity<>("Aanvraag succesvol verwijderd ", HttpStatus.OK);
+        return new ResponseEntity<>("Antwoord succesvol verwijderd ", HttpStatus.OK);
     }
 
 }

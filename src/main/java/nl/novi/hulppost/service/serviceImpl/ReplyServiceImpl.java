@@ -38,24 +38,12 @@ public class ReplyServiceImpl implements ReplyService {
     }
 
     @Override
-    public ReplyDTO saveReply(ReplyDTO replyDto) {
-        Reply reply = mapToEntity(replyDto);
+    public ReplyDTO saveReply(ReplyDTO replyDTO) {
+        Reply reply = mapToEntity(replyDTO);
         Reply newReply = replyRepository.save(reply);
-        return mapToDto(newReply);
-    }
 
-//    @Override
-//    public List<ReplyDto> getAllReplies() {
-//        List<Reply> replyList = replyRepository.findAll();
-//        List<ReplyDto> replyDtoList = new ArrayList<>();
-//
-//        for (Reply reply : replyList) {
-//            ReplyDto replyDto = mapToDto(reply);
-//            replyDtoList.add(replyDto);
-//        }
-//
-//        return replyDtoList;
-//    }
+        return mapToDTO(newReply);
+    }
 
     @Override
     public List<ReplyDTO> getAllReplies(Optional<Long> userId, Optional<Long> requestId) {
@@ -71,8 +59,8 @@ public class ReplyServiceImpl implements ReplyService {
             replies = replyRepository.findAll();
 
         for (Reply reply : replies) {
-            ReplyDTO replyDto = mapToDto(reply);
-            replyDTOList.add(replyDto);
+            ReplyDTO replyDTO = mapToDTO(reply);
+            replyDTOList.add(replyDTO);
         }
         return replyDTOList;
     }
@@ -83,19 +71,19 @@ public class ReplyServiceImpl implements ReplyService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Aanvraag niet gevonden"));
 
-        return Optional.of(mapToDto(reply));
+        return Optional.of(mapToDTO(reply));
     }
 
     @Override
-    public ReplyDTO updateReply(ReplyDTO replyDto, Long replyId) {
-        Reply reply = replyRepository.findById(replyId)
+    public ReplyDTO updateReply(ReplyDTO replyDTO, Long replyId) {
+        Reply inDB = replyRepository.findById(replyId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Aanvraag", "id", replyId));
 
-        reply.setText(replyDto.getText());
-        Reply updatedReply = replyRepository.save(reply);
+        inDB.setText(replyDTO.getText());
+        Reply updatedReply = replyRepository.save(inDB);
 
-        return mapToDto(updatedReply);
+        return mapToDTO(updatedReply);
     }
 
     @Override
@@ -103,31 +91,31 @@ public class ReplyServiceImpl implements ReplyService {
         replyRepository.deleteById(replyId);
     }
 
-    private ReplyDTO mapToDto(Reply reply) {
-        ReplyDTO replyDto = new ReplyDTO();
+    private ReplyDTO mapToDTO(Reply reply) {
+        ReplyDTO replyDTO = new ReplyDTO();
 
-        replyDto.setId(reply.getId());
-        replyDto.setUserId(reply.getUser().getId());
-        replyDto.setRequestId(reply.getRequest().getId());
-        replyDto.setText(reply.getText());
+        replyDTO.setId(reply.getId());
+        replyDTO.setUserId(reply.getUser().getId());
+        replyDTO.setRequestId(reply.getRequest().getId());
+        replyDTO.setText(reply.getText());
+        replyDTO.setTimestamp(reply.getTimestamp());
 
-        return replyDto;
+        return replyDTO;
     }
 
-    private Reply mapToEntity(ReplyDTO replyDto) {
+    private Reply mapToEntity(ReplyDTO replyDTO) {
 
         Reply reply = new Reply();
 
-        reply.setId(replyDto.getId());
-
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
+
+        reply.setId(replyDTO.getId());
         reply.setUser(userRepository.findByUsername(username));
-
-        Long requestId = replyDto.getRequestId();
+        Long requestId = replyDTO.getRequestId();
         reply.setRequest(requestRepository.getById(requestId));
-
-        reply.setText(replyDto.getText());
+        reply.setTimestamp(replyDTO.getTimestamp());
+        reply.setText(replyDTO.getText());
 
         return reply;
 

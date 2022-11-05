@@ -14,4 +14,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     boolean existsBySurname(String surname);
 
     void findByFirstNameOrSurname(String firstName, String Surname);
+
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class AccountRepositoryITest {
                 .id(1L)
                 .firstName("Salim Kursad")
                 .surname("Dursun")
-                .birthday("24/02/85")
+                .birthday(new Date(1985-2-24))
                 .gender("M")
                 .zipCode("1068AB")
                 .build();
@@ -60,7 +61,7 @@ public class AccountRepositoryITest {
                 .id(1L)
                 .firstName("Yusuf")
                 .surname("Emir")
-                .birthday("15/09/2015")
+                .birthday(new Date(2000-9-15))
                 .gender("M")
                 .zipCode("1064VV")
                 .build();
@@ -83,7 +84,7 @@ public class AccountRepositoryITest {
                 .id(1L)
                 .firstName("Sammy")
                 .surname("Klaver")
-                .birthday("04/05/1993")
+                .birthday(new Date(1993-5-4))
                 .gender("M")
                 .zipCode("1466AA")
                 .build();
@@ -106,7 +107,7 @@ public class AccountRepositoryITest {
                 .id(1L)
                 .firstName("Jacqueline")
                 .surname("Roos")
-                .birthday("02/10/1995")
+                .birthday(new Date(1995-10-2))
                 .gender("M")
                 .zipCode("1056KP")
                 .build();
@@ -175,7 +176,7 @@ public class AccountRepositoryITest {
                 .id(4L)
                 .firstName("Sammy")
                 .surname("Klaver")
-                .birthday("04/05/1993")
+                .birthday(new Date(1993-5-4))
                 .gender("M")
                 .zipCode("1466AA")
                 .build();
@@ -198,7 +199,7 @@ public class AccountRepositoryITest {
         Account account = Account.builder()
                 .firstName("Salim Kursad")
                 .surname("Dursun")
-                .birthday("24/02/85")
+                .birthday(new Date(1985-2-24))
                 .gender("M")
                 .zipCode("1068AB")
                 .build();
@@ -243,7 +244,7 @@ public class AccountRepositoryITest {
         Account account = Account.builder()
                 .firstName("Salim Kursad")
                 .surname("Dursun")
-                .birthday("24/02/85")
+                .birthday(new Date(1985-2-24))
                 .gender("M")
                 .zipCode("1068AB")
                 .build();
@@ -268,7 +269,7 @@ public class AccountRepositoryITest {
         Account account = Account.builder()
                 .firstName("Salim Kursad")
                 .surname("Dursun")
-                .birthday("24/02/85")
+                .birthday(new Date(1985-2-24))
                 .gender("M")
                 .zipCode("1068AB")
                 .build();

@@ -1,11 +1,11 @@
 package nl.novi.hulppost.service.serviceImpl;
 
 import nl.novi.hulppost.config.AppConfiguration;
-import nl.novi.hulppost.dto.AttachmentDTO;
-import nl.novi.hulppost.model.Attachment;
+import nl.novi.hulppost.model.FileAttachment;
 import nl.novi.hulppost.model.Request;
 import nl.novi.hulppost.repository.AttachmentRepository;
 import nl.novi.hulppost.repository.RequestRepository;
+import nl.novi.hulppost.repository.UserRepository;
 import nl.novi.hulppost.service.FileService;
 import org.apache.commons.io.FileUtils;
 import org.apache.tika.Tika;
@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -32,14 +33,19 @@ public class FileServiceImpl implements FileService {
     @Autowired
     AttachmentRepository attachmentRepository;
 
+    @Autowired
     RequestRepository requestRepository;
 
-    public FileServiceImpl(AppConfiguration appConfiguration, AttachmentRepository attachmentRepository, RequestRepository requestRepository) {
+    @Autowired
+    UserRepository userRepository;
+
+    public FileServiceImpl(AppConfiguration appConfiguration, AttachmentRepository attachmentRepository, RequestRepository requestRepository, UserRepository userRepository) {
         super();
         this.appConfiguration = appConfiguration;
         this.attachmentRepository = attachmentRepository;
         this.tika = new Tika();
         this.requestRepository = requestRepository;
+        this.userRepository = userRepository;
     }
 
     public String saveProfileImage(String base64Image) throws IOException {
@@ -61,40 +67,38 @@ public class FileServiceImpl implements FileService {
 
     public void deleteProfileImage(String image) {
         try {
-            Files.deleteIfExists(Paths.get(appConfiguration.getFullProfileImagesPath() +"/"+ image));
+            Files.deleteIfExists(Paths.get(appConfiguration.getFullProfileImagesPath() + "/" + image));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public Attachment saveAttachment(MultipartFile file, Long requestId) {
+    public FileAttachment saveAttachment(MultipartFile file, Long requestId) {
+        FileAttachment fileAttachment = new FileAttachment();
         Optional<Request> optionalRequest = requestRepository.findById(requestId);
-        Attachment attachment = new Attachment();
 
-        if (optionalRequest.isPresent()) {
-            attachment.setRequest(optionalRequest.get());
-        }
-        attachment.setDate(new Date());
+        optionalRequest.ifPresent(fileAttachment::setRequest);
+        fileAttachment.setDate(new Date());
         String randomName = getRandomName();
-        attachment.setName(randomName);
+        fileAttachment.setName(randomName);
 
-        File target = new File(appConfiguration.getFullAttachmentsPath() +"/"+ randomName);
+        File target = new File(appConfiguration.getFullAttachmentsPath() + "/" + randomName);
         try {
             byte[] fileAsByte = file.getBytes();
             FileUtils.writeByteArrayToFile(target, fileAsByte);
-            attachment.setFileType(detectType(fileAsByte));
+            fileAttachment.setFileType(detectType(fileAsByte));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return attachmentRepository.save(attachment);
+        return attachmentRepository.save(fileAttachment);
     }
 
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void cleanupStorage() {
-        Date oneHourAgo = new Date(System.currentTimeMillis() - (60*60*1000));
-        List<Attachment> oldFiles = attachmentRepository.findByDateBeforeAndRequestIsNull(oneHourAgo);
-        for(Attachment file: oldFiles) {
+        Date oneHourAgo = new Date(System.currentTimeMillis() - (60 * 60 * 1000));
+        List<FileAttachment> oldFiles = attachmentRepository.findByDateBeforeAndRequestIsNull(oneHourAgo);
+        for (FileAttachment file : oldFiles) {
             deleteAttachmentImage(file.getName());
             attachmentRepository.deleteById(file.getId());
         }
@@ -102,31 +106,9 @@ public class FileServiceImpl implements FileService {
 
     public void deleteAttachmentImage(String image) {
         try {
-            Files.deleteIfExists(Paths.get(appConfiguration.getFullAttachmentsPath()+"/"+image));
+            Files.deleteIfExists(Paths.get(appConfiguration.getFullAttachmentsPath() + "/" + image));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-//    public AttachmentDTO mapToDto(Attachment attachment) {
-//        AttachmentDTO fileAttachmentDTO = new AttachmentDTO();
-//
-//        fileAttachmentDTO.setRequestId(attachment.getRequest().getId());
-//        fileAttachmentDTO.setName(attachment.getName());
-//        fileAttachmentDTO.setFileType(attachment.getFileType());
-//
-//        return fileAttachmentDTO;
-//
-//    }
-//
-//    public Attachment mapToEntity(AttachmentDTO attachmentDto) {
-//        Attachment attachment = new Attachment();
-//
-//        attachment.setRequest(new Request().getAttachment().getRequest());
-//        attachment.setName(attachmentDto.getName());
-//        attachment.setFileType(attachmentDto.getFileType());
-//
-//        return attachment;
-//    }
-
 }

@@ -9,12 +9,11 @@
 
 package nl.novi.hulppost.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Builder
 @Table(name = "user_accounts")
@@ -23,7 +22,6 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(unique = true, nullable = false)
     private Long id;
     @Column( name = "first_name")
     private String firstName;
@@ -32,20 +30,21 @@ public class Account {
     @Column(name = "gender")
     private String gender;
     @Column(name = "birthday")
-    private String birthday;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private Date birthday;
     @Column(name = "zip_code")
     private String zipCode;
 
     @OneToOne( fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn(referencedColumnName = "user_id")
-    @JoinColumn( name = "user_id")
+    @PrimaryKeyJoinColumn(referencedColumnName = "id")
+    @JoinColumn( name = "id")
 //    @JsonIgnore
     private User user;
 
     public Account() {
     }
 
-    public Account(Long id, String firstName, String surname, String gender, String birthday, String zipCode, User user) {
+    public Account(Long id, String firstName, String surname, String gender, Date birthday, String zipCode, User user) {
         this.id = id;
         this.firstName = firstName;
         this.surname = surname;
@@ -87,11 +86,11 @@ public class Account {
         this.gender = gender;
     }
 
-    public String getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(String birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 

@@ -1,7 +1,6 @@
 package nl.novi.hulppost.service.serviceImpl;
 
 import nl.novi.hulppost.dto.AccountDTO;
-import nl.novi.hulppost.dto.RegistrationDTO;
 import nl.novi.hulppost.exception.ResourceNotFoundException;
 import nl.novi.hulppost.model.Account;
 import nl.novi.hulppost.repository.AccountRepository;
@@ -25,25 +24,25 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public AccountDTO saveAccount(AccountDTO accountDto) {
-        Account account = mapToEntity(accountDto);
-        Optional<Account> savedAccount = accountRepository.findByFirstNameIgnoreCase(accountDto.getFirstName());
+    public AccountDTO saveAccount(AccountDTO accountDTO) {
+        Account account = mapToEntity(accountDTO);
+        Optional<Account> savedAccount = accountRepository.findByFirstNameIgnoreCase(accountDTO.getFirstName());
         if (savedAccount.isPresent())
             throw new ResourceNotFoundException("Het profiel bestaat al");
         Account newAccount = accountRepository.save(account);
-        return mapToDto(newAccount);
+        return mapToDTO(newAccount);
     }
 
 
     @Override
     public List<AccountDTO> getAllAccounts() {
         List<Account> accountList = accountRepository.findAll();
-        List<AccountDTO> accountDTOList = new ArrayList();
+        List<AccountDTO> accountDTOList = new ArrayList<>();
 
 
         for (Account account : accountList) {
-            AccountDTO accountDto = mapToDto(account);
-            accountDTOList.add(accountDto);
+            AccountDTO accountDTO = mapToDTO(account);
+            accountDTOList.add(accountDTO);
         }
 
         return accountDTOList;
@@ -55,23 +54,23 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Profiel niet gevonden"));
 
-        return Optional.of(mapToDto(account));
+        return Optional.of(mapToDTO(account));
     }
 
     @Override
-    public AccountDTO updateAccount(AccountDTO accountDto, Long accountId) {
-        Account account = accountRepository.findById(accountId)
+    public AccountDTO updateAccount(AccountDTO accountDTO, Long accountId) {
+        Account inDB = accountRepository.findById(accountId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Account", "id", accountId));
 
-        account.setFirstName(accountDto.getFirstName());
-        account.setSurname(accountDto.getSurname());
-        account.setBirthday(accountDto.getBirthday());
-        account.setZipCode(accountDto.getZipCode());
-        account.setGender(accountDto.getGender());
-        Account updatedAccount = accountRepository.save(account);
+        inDB.setFirstName(accountDTO.getFirstName());
+        inDB.setSurname(accountDTO.getSurname());
+        inDB.setBirthday(accountDTO.getBirthday());
+        inDB.setZipCode(accountDTO.getZipCode());
+        inDB.setGender(accountDTO.getGender());
+        Account updatedAccount = accountRepository.save(inDB);
 
-        return mapToDto(updatedAccount);
+        return mapToDTO(updatedAccount);
     }
 
     @Override
@@ -79,28 +78,28 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.deleteById(accountId);
     }
 
-    private AccountDTO mapToDto(Account account) {
-        AccountDTO accountDto = new AccountDTO();
+    private AccountDTO mapToDTO(Account account) {
+        AccountDTO accountDTO = new AccountDTO();
 
-        accountDto.setId(account.getId());
-        accountDto.setFirstName(account.getFirstName());
-        accountDto.setSurname(account.getSurname());
-        accountDto.setBirthday(account.getBirthday());
-        accountDto.setZipCode(account.getZipCode());
-        accountDto.setGender(account.getGender());
+        accountDTO.setId(account.getId());
+        accountDTO.setFirstName(account.getFirstName());
+        accountDTO.setSurname(account.getSurname());
+        accountDTO.setBirthday(account.getBirthday());
+        accountDTO.setZipCode(account.getZipCode());
+        accountDTO.setGender(account.getGender());
 
-        return accountDto;
+        return accountDTO;
     }
 
-    private Account mapToEntity(AccountDTO accountDto) {
+    private Account mapToEntity(AccountDTO accountDTO) {
         Account account = new Account();
 
-        account.setId(accountDto.getId());
-        account.setFirstName(accountDto.getFirstName());
-        account.setSurname(accountDto.getSurname());
-        account.setBirthday(accountDto.getBirthday());
-        account.setZipCode(accountDto.getZipCode());
-        account.setGender(accountDto.getGender());;
+        account.setId(accountDTO.getId());
+        account.setFirstName(accountDTO.getFirstName());
+        account.setSurname(accountDTO.getSurname());
+        account.setBirthday(accountDTO.getBirthday());
+        account.setZipCode(accountDTO.getZipCode());
+        account.setGender(accountDTO.getGender());
 
         return account;
     }

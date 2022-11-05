@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -77,7 +78,7 @@ public class UserControllerITest {
                 .firstName("Smith")
                 .surname("Klomp")
                 .gender("M")
-                .birthday("22/09/1988")
+                .birthday(new Date(1988-9-22))
                 .zipCode("1088BB")
                 .username("Test")
                 .email("Test@gmail.com")
@@ -85,7 +86,7 @@ public class UserControllerITest {
                 .build();
 
         // when - action that's under test
-        ResultActions response = mockMvc.perform(post("/auth/registration/volunteer").with(user(volunteer.getUsername()))
+        ResultActions response = mockMvc.perform(post("/api/v1/auth/registration/volunteer").with(user(volunteer.getUsername()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(volunteer)));
 
@@ -120,7 +121,7 @@ public class UserControllerITest {
         userRepository.saveAll(listOfUsers);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/users"));
+        ResultActions response = mockMvc.perform(get("/api/v1/users"));
 
         // then
         response.andExpect(status().isOk())
@@ -143,7 +144,7 @@ public class UserControllerITest {
         userRepository.save(user);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/users/{userId}", user.getId()).with(user("Test")));
+        ResultActions response = mockMvc.perform(get("/api/v1/users/{userId}", user.getId()).with(user("Test")));
 
         // then
         response.andExpect(status().isOk())
@@ -168,7 +169,7 @@ public class UserControllerITest {
         userRepository.save(user);
 
         // when
-        ResultActions response = mockMvc.perform(get("/hulppost/users/{userId}", userId).with(user("Test")));
+        ResultActions response = mockMvc.perform(get("/api/v1/users/{userId}", userId).with(user("Test")));
 
         // then
         response.andExpect(status().isNotFound())
@@ -195,7 +196,7 @@ public class UserControllerITest {
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/users/{userId}", savedUser.getId()).with(user(savedUser.getUsername()))
+        ResultActions response = mockMvc.perform(put("/api/v1/users/{userId}", savedUser.getId()).with(user(savedUser.getUsername()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedUser)));
 
@@ -228,7 +229,7 @@ public class UserControllerITest {
                 .build();
 
         // when
-        ResultActions response = mockMvc.perform(put("/hulppost/users/{userId}", userId).with(user(updatedUser.getUsername()))
+        ResultActions response = mockMvc.perform(put("/api/v1/users/{userId}", userId).with(user(updatedUser.getUsername()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedUser)));
 
@@ -249,7 +250,7 @@ public class UserControllerITest {
         userRepository.save(savedUser);
 
         // when
-        ResultActions response = mockMvc.perform(delete("/hulppost/users/{userId}", savedUser.getId()).with(user(savedUser.getUsername())));
+        ResultActions response = mockMvc.perform(delete("/api/v1/users/{userId}", savedUser.getId()).with(user(savedUser.getUsername())));
 
         // then
         response.andExpect(status().isOk())
