@@ -21,6 +21,8 @@ import java.util.Optional;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
+
+    //This class sends a request to the interface service layer
     @Autowired
     private UserService userService;
 
