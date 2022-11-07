@@ -45,15 +45,9 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-//    @PostMapping("/{userId}")
-//    public ResponseEntity<UserImageDTO> saveProfileImage(@PathVariable(value = "userId")
-//                                                         @RequestBody @Valid UserImageDTO userImageDTO) {
-//        return new ResponseEntity<>(userService.assignImageToUser(userImageDTO), HttpStatus.CREATED);
-//    }
-
 
     @PutMapping("/{userId}")
-//    @PreAuthorize("@methodLevelSecurityService.isAuthorizedUser(#userId, principal)")
+    @PreAuthorize("@methodLevelSecurityService.isAuthorizedUser(#userId, principal)")
     public ResponseEntity<UserDTO> updateUser(@PathVariable(value = "userId") Long userId,
                                               @Valid @RequestBody UserDTO userDTO) {
         return userService.getUserById(userId)
@@ -85,7 +79,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/deleteImage")
-//    @PreAuthorize("@methodLevelSecurityService.isAuthorizedUser(#userId, principal)")
+    @PreAuthorize("@methodLevelSecurityService.isAuthorizedUser(#userId, principal)")
     public ResponseEntity<String> deleteImage(@PathVariable(value = "userId") Long userId) {
         userService.deleteImage(userId);
         return new ResponseEntity<>("Profielfoto succesvol verwijderd ", HttpStatus.OK);
