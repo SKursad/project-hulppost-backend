@@ -29,7 +29,6 @@ public class UserDTO {
     @Email(message = "{hulppost.javax.validation.constraints.Email.message}")
     private String email;
 
-
     private String image;
 
     private Set<Role> roles;

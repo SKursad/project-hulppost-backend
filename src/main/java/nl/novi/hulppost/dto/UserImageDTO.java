@@ -11,7 +11,6 @@ public class UserImageDTO {
 
     private Long id;
 
-
     private String image;
 
 }
