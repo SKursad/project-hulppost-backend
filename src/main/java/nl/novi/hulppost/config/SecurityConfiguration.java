@@ -70,8 +70,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/v1/requests/**/image").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/requests").hasAnyRole("HELP-SEEKER","ADMIN")
                 .antMatchers(HttpMethod.POST, "/api/v1/replies").authenticated()
-                .antMatchers(HttpMethod.POST, "/api/v1/requests/**").authenticated()
-                .antMatchers(HttpMethod.POST, "/api/v1/replies/**").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/users").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/accounts").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/v1/requests/**").authenticated()
