@@ -56,6 +56,6 @@ public class RegistrationDTO {
     private Date birthday;
 
     @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
-    @Pattern(regexp = "^[1-9][0-9]{3}\\s?([a-zA-Z]{2})\\s?$", message = "{hulppost.constraints.zipCode.Pattern.message}")
+    @Pattern(regexp = "^[1-3][0-9]{3}\\s?([a-zA-Z]{2})\\s?", message = "{hulppost.constraints.zipCode.Pattern.message}")
     private String zipCode;
 }
