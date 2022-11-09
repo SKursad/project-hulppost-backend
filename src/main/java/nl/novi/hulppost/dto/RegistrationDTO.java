@@ -28,11 +28,11 @@ public class RegistrationDTO {
     @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
     private String email;
 
-//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    //    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
     @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{hulppost.constraints.emptySpace.pass.Pattern.message}")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{hulppost.constraints.password.Pattern.message}")
     private String password;
-
 
     private String image;
 
@@ -44,17 +44,18 @@ public class RegistrationDTO {
     @Size(min = 4, message = "{hulppost.javax.validation.constraints.surname.Size.message}")
     private String surname;
 
-//    @Pattern(regexp = "^M$|^V$")
-//    @Enumerated(EnumType.STRING)
+    //    @Pattern(regexp = "^M$|^V$")
+    //    @Enumerated(EnumType.STRING)
     @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
     @Pattern(regexp = "^(?!.*\\u0020+).*$", message = "{hulppost.constraints.gen.emptySpace.Pattern.message}")
     private String gender;
 
-//    @Pattern(regexp = "^(3[01]|[12]\\d|0[1-9])/(1[0-2]|0[1-9])/\\d{4}$", message = "{hulppost.constraints.dob.Pattern.message}")
+    //    @Pattern(regexp = "^(3[01]|[12]\\d|0[1-9])/(1[0-2]|0[1-9])/\\d{4}$", message = "{hulppost.constraints.dob.Pattern.message}")
     @NotNull(message = "{hulppost.javax.validation.constraints.dob.NotNull.message}")
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
+    @NotBlank(message = "{hulppost.javax.validation.constraints.NotBlank.message}")
     @Pattern(regexp = "^[1-9][0-9]{3}\\s?([a-zA-Z]{2})\\s?$", message = "{hulppost.constraints.zipCode.Pattern.message}")
     private String zipCode;
 }
