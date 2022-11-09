@@ -66,13 +66,13 @@ public class AuthController {
     }
 
     @PostMapping("/changePassword")
-    public String changePassword(@Valid @RequestBody Password password){
+    public ResponseEntity <String> changePassword(@Valid @RequestBody Password password){
         User user = userService.findUserByEmail(password.getEmail());
         if(!userService.checkIfValidOldPassword(user,password.getOldPassword())) {
-            return "Wachtwoorden komen niet overeen";
+            return new ResponseEntity<>("Wachtwoorden komen niet overeen", HttpStatus.UNAUTHORIZED);
         }
         userService.changePassword(user,password.getNewPassword());
-        return "Wachtwoord succesvol gewijzigd";
+        return new ResponseEntity<>("Wachtwoord succesvol gewijzigd", HttpStatus.OK);
     }
 
 }
